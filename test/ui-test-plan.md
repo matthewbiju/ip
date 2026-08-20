@@ -38,10 +38,10 @@ exits with the farewell message.
 |  _ <| |___ /  \ 
 |_| \_\_____/_/\_\
 
-Hello! I'm Rex!
-What can I do for you?
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
 >>> bye
-Bye. Hope to see you again soon!
+Bye! *wags tail* Hope to fetch for you again soon!
 ```
 
 ### TC2: Add todos, deadlines, and events; list them
@@ -58,27 +58,27 @@ count, and that `list` renders each type's details correctly.
 |  _ <| |___ /  \ 
 |_| \_\_____/_/\_\
 
-Hello! I'm Rex!
-What can I do for you?
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
 >>> todo borrow book
-Got it. I've added this task:
+Got it! I've fetched this task for you:
   [T][ ] borrow book
-Now you have 1 tasks in the list.
+You now have 1 tasks in your bowl!
 >>> deadline return book /by Sunday
-Got it. I've added this task:
+Got it! I've fetched this task for you:
   [D][ ] return book (by: Sunday)
-Now you have 2 tasks in the list.
+You now have 2 tasks in your bowl!
 >>> event project meeting /from Mon 2pm /to 4pm
-Got it. I've added this task:
+Got it! I've fetched this task for you:
   [E][ ] project meeting (from: Mon 2pm to: 4pm)
-Now you have 3 tasks in the list.
+You now have 3 tasks in your bowl!
 >>> list
-Here are the tasks in your list:
+Here's what's in your bowl:
 1.[T][ ] borrow book
 2.[D][ ] return book (by: Sunday)
 3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
 >>> bye
-Bye. Hope to see you again soon!
+Bye! *wags tail* Hope to fetch for you again soon!
 ```
 
 ### TC3: Mark and unmark tasks
@@ -94,26 +94,26 @@ type icon), and that `list` reflects the change.
 |  _ <| |___ /  \ 
 |_| \_\_____/_/\_\
 
-Hello! I'm Rex!
-What can I do for you?
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
 >>> todo borrow book
-Got it. I've added this task:
+Got it! I've fetched this task for you:
   [T][ ] borrow book
-Now you have 1 tasks in the list.
+You now have 1 tasks in your bowl!
 >>> deadline return book /by Sunday
-Got it. I've added this task:
+Got it! I've fetched this task for you:
   [D][ ] return book (by: Sunday)
-Now you have 2 tasks in the list.
+You now have 2 tasks in your bowl!
 >>> mark 1
-Nice! I've marked this task as done:
+Nice catch! I've marked this task as done:
   [T][X] borrow book
 >>> unmark 1
-OK, I've marked this task as not done yet:
+Okay, putting this one back in the yard — not done yet:
   [T][ ] borrow book
 >>> list
-Here are the tasks in your list:
+Here's what's in your bowl:
 1.[T][ ] borrow book
 2.[D][ ] return book (by: Sunday)
 >>> bye
-Bye. Hope to see you again soon!
+Bye! *wags tail* Hope to fetch for you again soon!
 ```

@@ -8,8 +8,8 @@ public class Rex {
                 + "|  _ <| |___ /  \\ \n"
                 + "|_| \\_\\_____/_/\\_\\\n";
         System.out.println(banner);
-        System.out.println("Hello! I'm Rex!");
-        System.out.println("What can I do for you?");
+        System.out.println("Woof woof! I'm Rex, your task-fetching sidekick!");
+        System.out.println("What can I fetch for you today?");
 
         Task[] tasks = new Task[100];
         int taskCount = 0;
@@ -18,19 +18,19 @@ public class Rex {
         String input = scanner.nextLine();
         while (!input.equals("bye")) {
             if (input.equals("list")) {
-                System.out.println("Here are the tasks in your list:");
+                System.out.println("Here's what's in your bowl:");
                 for (int i = 0; i < taskCount; i++) {
                     System.out.println((i + 1) + "." + taskLine(tasks[i]));
                 }
             } else if (input.startsWith("mark ")) {
                 int index = Integer.parseInt(input.substring(5)) - 1;
                 tasks[index].markAsDone();
-                System.out.println("Nice! I've marked this task as done:");
+                System.out.println("Nice catch! I've marked this task as done:");
                 System.out.println("  " + taskLine(tasks[index]));
             } else if (input.startsWith("unmark ")) {
                 int index = Integer.parseInt(input.substring(7)) - 1;
                 tasks[index].markAsNotDone();
-                System.out.println("OK, I've marked this task as not done yet:");
+                System.out.println("Okay, putting this one back in the yard — not done yet:");
                 System.out.println("  " + taskLine(tasks[index]));
             } else if (input.startsWith("todo ")) {
                 String description = input.substring(5);
@@ -51,7 +51,7 @@ public class Rex {
             }
             input = scanner.nextLine();
         }
-        System.out.println("Bye. Hope to see you again soon!");
+        System.out.println("Bye! *wags tail* Hope to fetch for you again soon!");
         scanner.close();
     }
 
@@ -60,8 +60,8 @@ public class Rex {
     }
 
     private static void printAddedConfirmation(Task task, int taskCount) {
-        System.out.println("Got it. I've added this task:");
+        System.out.println("Got it! I've fetched this task for you:");
         System.out.println("  " + taskLine(task));
-        System.out.println("Now you have " + taskCount + " tasks in the list.");
+        System.out.println("You now have " + taskCount + " tasks in your bowl!");
     }
 }
