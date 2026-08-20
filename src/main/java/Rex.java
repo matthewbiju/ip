@@ -16,42 +16,50 @@ public class Rex {
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
-        while (!input.equals("bye")) {
+        CommandType command = parseCommandType(commandWordOf(input));
+        while (command != CommandType.BYE) {
+            String argument = argumentOf(input);
             try {
-                if (input.equals("list")) {
+                switch (command) {
+                case LIST:
                     System.out.println("Here's what's in your bowl:");
                     for (int i = 0; i < tasks.size(); i++) {
                         System.out.println((i + 1) + "." + taskLine(tasks.get(i)));
                     }
-                } else if (input.equals("mark") || input.startsWith("mark ")) {
-                    String argument = input.length() > 4 ? input.substring(5) : "";
+                    break;
+                case MARK: {
                     int index = parseTaskIndex(argument, tasks.size());
                     tasks.get(index).markAsDone();
                     System.out.println("Nice catch! I've marked this task as done:");
                     System.out.println("  " + taskLine(tasks.get(index)));
-                } else if (input.equals("unmark") || input.startsWith("unmark ")) {
-                    String argument = input.length() > 6 ? input.substring(7) : "";
+                    break;
+                }
+                case UNMARK: {
                     int index = parseTaskIndex(argument, tasks.size());
                     tasks.get(index).markAsNotDone();
                     System.out.println("Okay, putting this one back in the yard — not done yet:");
                     System.out.println("  " + taskLine(tasks.get(index)));
-                } else if (input.equals("delete") || input.startsWith("delete ")) {
-                    String argument = input.length() > 6 ? input.substring(7) : "";
+                    break;
+                }
+                case DELETE: {
                     int index = parseTaskIndex(argument, tasks.size());
                     Task removed = tasks.remove(index);
                     System.out.println("Gotcha! I've removed this task from your bowl:");
                     System.out.println("  " + taskLine(removed));
                     System.out.println("You now have " + tasks.size() + " tasks in your bowl!");
-                } else if (input.equals("todo") || input.startsWith("todo ")) {
-                    String description = (input.length() > 4 ? input.substring(5) : "").trim();
+                    break;
+                }
+                case TODO: {
+                    String description = argument.trim();
                     if (description.isEmpty()) {
                         throw new RexException("Ruff! The description of a todo cannot be empty.");
                     }
                     tasks.add(new ToDo(description));
                     printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
-                } else if (input.equals("deadline") || input.startsWith("deadline ")) {
-                    String rest = input.length() > 8 ? input.substring(9) : "";
-                    String[] parts = rest.split(" /by ", 2);
+                    break;
+                }
+                case DEADLINE: {
+                    String[] parts = argument.split(" /by ", 2);
                     String description = parts[0].trim();
                     if (description.isEmpty()) {
                         throw new RexException("Ruff! The description of a deadline cannot be empty.");
@@ -62,9 +70,10 @@ public class Rex {
                     }
                     tasks.add(new Deadline(description, parts[1].trim()));
                     printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
-                } else if (input.equals("event") || input.startsWith("event ")) {
-                    String rest = input.length() > 5 ? input.substring(6) : "";
-                    String[] fromParts = rest.split(" /from ", 2);
+                    break;
+                }
+                case EVENT: {
+                    String[] fromParts = argument.split(" /from ", 2);
                     String description = fromParts[0].trim();
                     if (description.isEmpty()) {
                         throw new RexException("Ruff! The description of an event cannot be empty.");
@@ -80,16 +89,41 @@ public class Rex {
                     }
                     tasks.add(new Event(description, toParts[0].trim(), toParts[1].trim()));
                     printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
-                } else {
+                    break;
+                }
+                case UNKNOWN:
+                default:
                     throw new RexException("Woof? I don't know what that means :-(");
                 }
             } catch (RexException e) {
                 System.out.println("OOPS!!! " + e.getMessage());
             }
             input = scanner.nextLine();
+            command = parseCommandType(commandWordOf(input));
         }
         System.out.println("Bye! *wags tail* Hope to fetch for you again soon!");
         scanner.close();
+    }
+
+    /** Returns the first space-separated word of the input, e.g. "todo" from "todo borrow book". */
+    private static String commandWordOf(String input) {
+        int spaceIndex = input.indexOf(' ');
+        return spaceIndex == -1 ? input : input.substring(0, spaceIndex);
+    }
+
+    /** Returns everything after the first word, or "" if there is no argument. */
+    private static String argumentOf(String input) {
+        int spaceIndex = input.indexOf(' ');
+        return spaceIndex == -1 ? "" : input.substring(spaceIndex + 1);
+    }
+
+    /** Maps a command word to its CommandType, or UNKNOWN if it isn't recognized. */
+    private static CommandType parseCommandType(String commandWord) {
+        try {
+            return CommandType.valueOf(commandWord.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return CommandType.UNKNOWN;
+        }
     }
 
     /**
