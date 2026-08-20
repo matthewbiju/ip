@@ -151,3 +151,45 @@ You now have 1 tasks in your bowl!
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
+
+### TC5: Delete tasks
+
+**Aim:** Verify `delete` removes the correct task, reports it back, updates
+the task count, and that `list` reflects the new indices. Also verify
+`delete` reuses the same task-number validation as `mark`/`unmark`.
+
+```session
+>>> (startup)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> todo read book
+Got it! I've fetched this task for you:
+  [T][ ] read book
+You now have 1 tasks in your bowl!
+>>> deadline return book /by Sunday
+Got it! I've fetched this task for you:
+  [D][ ] return book (by: Sunday)
+You now have 2 tasks in your bowl!
+>>> todo borrow book
+Got it! I've fetched this task for you:
+  [T][ ] borrow book
+You now have 3 tasks in your bowl!
+>>> delete 2
+Gotcha! I've removed this task from your bowl:
+  [D][ ] return book (by: Sunday)
+You now have 2 tasks in your bowl!
+>>> list
+Here's what's in your bowl:
+1.[T][ ] read book
+2.[T][ ] borrow book
+>>> delete 99
+OOPS!!! Woof! There's no task numbered 99 in your bowl.
+>>> bye
+Bye! *wags tail* Hope to fetch for you again soon!
+```
