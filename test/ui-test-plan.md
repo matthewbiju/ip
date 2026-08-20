@@ -117,3 +117,37 @@ Here's what's in your bowl:
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
+
+### TC4: Error handling
+
+**Aim:** Verify bad input produces a clear error (via `RexException`) instead
+of being silently ignored or crashing the program, and that the program
+keeps running afterward.
+
+```session
+>>> (startup)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> todo
+OOPS!!! Ruff! The description of a todo cannot be empty.
+>>> blah
+OOPS!!! Woof? I don't know what that means :-(
+>>> deadline return book
+OOPS!!! Ruff! A deadline needs a '/by' date, e.g. deadline return book /by Sunday.
+>>> mark abc
+OOPS!!! Woof! "abc" isn't a valid task number.
+>>> mark 99
+OOPS!!! Woof! There's no task numbered 99 in your bowl.
+>>> todo borrow book
+Got it! I've fetched this task for you:
+  [T][ ] borrow book
+You now have 1 tasks in your bowl!
+>>> bye
+Bye! *wags tail* Hope to fetch for you again soon!
+```
