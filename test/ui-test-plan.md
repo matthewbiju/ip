@@ -44,10 +44,11 @@ What can I do for you?
 Bye. Hope to see you again soon!
 ```
 
-### TC2: Add and list tasks
+### TC2: Add todos, deadlines, and events; list them
 
-**Aim:** Verify tasks can be added and are listed back, numbered, with an
-unset status icon.
+**Aim:** Verify all three task types can be added via `todo`/`deadline`/
+`event`, each with the correct type icon, confirmation message, and task
+count, and that `list` renders each type's details correctly.
 
 ```session
 >>> (startup)
@@ -59,22 +60,31 @@ unset status icon.
 
 Hello! I'm Rex!
 What can I do for you?
->>> read book
-added: read book
->>> return book
-added: return book
+>>> todo borrow book
+Got it. I've added this task:
+  [T][ ] borrow book
+Now you have 1 tasks in the list.
+>>> deadline return book /by Sunday
+Got it. I've added this task:
+  [D][ ] return book (by: Sunday)
+Now you have 2 tasks in the list.
+>>> event project meeting /from Mon 2pm /to 4pm
+Got it. I've added this task:
+  [E][ ] project meeting (from: Mon 2pm to: 4pm)
+Now you have 3 tasks in the list.
 >>> list
 Here are the tasks in your list:
-1.[ ] read book
-2.[ ] return book
+1.[T][ ] borrow book
+2.[D][ ] return book (by: Sunday)
+3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
 >>> bye
 Bye. Hope to see you again soon!
 ```
 
 ### TC3: Mark and unmark tasks
 
-**Aim:** Verify `mark`/`unmark` update a task's status icon, and that `list`
-reflects the change.
+**Aim:** Verify `mark`/`unmark` update a task's status icon (alongside its
+type icon), and that `list` reflects the change.
 
 ```session
 >>> (startup)
@@ -86,20 +96,24 @@ reflects the change.
 
 Hello! I'm Rex!
 What can I do for you?
->>> read book
-added: read book
->>> return book
-added: return book
+>>> todo borrow book
+Got it. I've added this task:
+  [T][ ] borrow book
+Now you have 1 tasks in the list.
+>>> deadline return book /by Sunday
+Got it. I've added this task:
+  [D][ ] return book (by: Sunday)
+Now you have 2 tasks in the list.
 >>> mark 1
 Nice! I've marked this task as done:
-  [X] read book
+  [T][X] borrow book
 >>> unmark 1
 OK, I've marked this task as not done yet:
-  [ ] read book
+  [T][ ] borrow book
 >>> list
 Here are the tasks in your list:
-1.[ ] read book
-2.[ ] return book
+1.[T][ ] borrow book
+2.[D][ ] return book (by: Sunday)
 >>> bye
 Bye. Hope to see you again soon!
 ```
