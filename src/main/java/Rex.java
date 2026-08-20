@@ -12,15 +12,23 @@ public class Rex {
         System.out.println("What can I do for you?");
 
         String[] tasks = new String[100];
+        boolean[] done = new boolean[100];
         int taskCount = 0;
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
         while (!input.equals("bye")) {
             if (input.equals("list")) {
+                System.out.println("Here are the tasks in your list:");
                 for (int i = 0; i < taskCount; i++) {
-                    System.out.println((i + 1) + ". " + tasks[i]);
+                    String statusIcon = done[i] ? "X" : " ";
+                    System.out.println((i + 1) + ".[" + statusIcon + "] " + tasks[i]);
                 }
+            } else if (input.startsWith("mark ")) {
+                int index = Integer.parseInt(input.substring(5)) - 1;
+                done[index] = true;
+                System.out.println("Nice! I've marked this task as done:");
+                System.out.println("  [X] " + tasks[index]);
             } else {
                 tasks[taskCount] = input;
                 taskCount++;
