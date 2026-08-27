@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class Storage {
     private final Path file;
+    private int skippedLineCount = 0;
 
     /**
      * Creates a Storage that reads and writes the given file.
@@ -61,14 +62,33 @@ public class Storage {
      */
     public ArrayList<Task> load() throws IOException {
         ArrayList<Task> tasks = new ArrayList<>();
+        skippedLineCount = 0;
         if (!Files.exists(file)) {
             return tasks;
         }
 
         for (String line : Files.readAllLines(file)) {
-            tasks.add(parseTask(line));
+            if (line.trim().isEmpty()) {
+                continue;
+            }
+            try {
+                tasks.add(parseTask(line));
+            } catch (IllegalArgumentException e) {
+                // One unreadable line should not cost the user every other
+                // task in the file, so it is skipped and counted instead.
+                skippedLineCount++;
+            }
         }
         return tasks;
+    }
+
+    /**
+     * Returns how many lines the most recent load could not understand and
+     * skipped. Note that these lines are lost the next time the tasks are
+     * saved, because saving rewrites the whole file.
+     */
+    public int getSkippedLineCount() {
+        return skippedLineCount;
     }
 
     /**
@@ -80,28 +100,59 @@ public class Storage {
      */
     private static Task parseTask(String line) {
         String[] fields = line.split(" \\| ");
+        // Every field is checked before it is used, so that a damaged line
+        // always fails as an IllegalArgumentException the caller can skip,
+        // rather than as an out-of-bounds error further down.
+        requireAtLeastFieldCount(fields, 3);
+
         String type = fields[0];
+        String doneFlag = fields[1];
         String description = fields[2];
+        if (!doneFlag.equals("0") && !doneFlag.equals("1")) {
+            throw new IllegalArgumentException("Done flag is not 0 or 1: " + doneFlag);
+        }
+        if (description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description is empty");
+        }
 
         Task task;
         switch (type) {
         case "T":
+            requireExactFieldCount(fields, 3);
             task = new ToDo(description);
             break;
         case "D":
+            requireExactFieldCount(fields, 4);
             task = new Deadline(description, fields[3]);
             break;
         case "E":
+            requireExactFieldCount(fields, 5);
             task = new Event(description, fields[3], fields[4]);
             break;
         default:
             throw new IllegalArgumentException("Unknown task type: " + type);
         }
 
-        if (fields[1].equals("1")) {
+        if (doneFlag.equals("1")) {
             task.markAsDone();
         }
         return task;
+    }
+
+    /** Throws IllegalArgumentException if the line has fewer fields than needed. */
+    private static void requireAtLeastFieldCount(String[] fields, int required) {
+        if (fields.length < required) {
+            throw new IllegalArgumentException(
+                    "Expected at least " + required + " fields but found " + fields.length);
+        }
+    }
+
+    /** Throws IllegalArgumentException unless the line has exactly this many fields. */
+    private static void requireExactFieldCount(String[] fields, int required) {
+        if (fields.length != required) {
+            throw new IllegalArgumentException(
+                    "Expected " + required + " fields but found " + fields.length);
+        }
     }
 
     /** Returns the path of the save file, for use in messages to the user. */

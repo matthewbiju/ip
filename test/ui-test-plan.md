@@ -22,7 +22,7 @@ the next `>>> ` (or the end of the block) are the expected output for that
 step, compared line for line. Trailing whitespace on each line is ignored;
 everything else must match exactly.
 
-Two inputs are directives rather than input sent to the program:
+Some inputs are directives rather than input sent to the program:
 
 * `(startup)` sends nothing, and just captures the program's output before
   any input is read.
@@ -30,6 +30,11 @@ Two inputs are directives rather than input sent to the program:
   session's startup output. Because both sessions run in the same working
   directory, this is how a test case checks that something written to disk by
   one session is still there for the next one.
+* `(write <path>)` writes the lines that follow it to `<path>` (relative to
+  the working directory) instead of treating them as expected output, and
+  reads nothing back from the program. Use it with `(restart)` to put a file
+  on disk and then start a session that reads it — for example, to check how
+  a damaged save file is handled.
 
 Each test case runs in its own empty temporary directory, so files a test
 case writes are never seen by another test case and never touch real data in
@@ -278,6 +283,88 @@ first run: an empty list, and no error message.
 |_| \_\_____/_/\_\
 
 Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> list
+Here's what's in your bowl:
+>>> bye
+Bye! *wags tail* Hope to fetch for you again soon!
+```
+
+### TC8: A damaged save file skips only the bad lines
+
+**Aim:** Verify that lines the save file format doesn't allow are skipped with
+a single counted warning, that the readable tasks around them still load, and
+that the program remains usable afterwards. Covers each way a line can be
+rejected: unknown type letter, wrong field count for the type, a done flag
+that isn't 0 or 1, and an empty description.
+
+```session
+>>> (startup)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> (write data/rex.txt)
+T | 1 | read book
+X | 0 | unknown type letter
+D | 0 | deadline with no by field
+E | 0 | event missing its to field | Mon 2pm
+T | 9 | done flag is not 0 or 1
+T | 0 | 
+D | 1 | return book | Sunday
+>>> (restart)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+Ruff! I couldn't read 5 line(s) in data/rex.txt, so I've skipped them.
+What can I fetch for you today?
+>>> list
+Here's what's in your bowl:
+1.[T][X] read book
+2.[D][X] return book (by: Sunday)
+>>> todo walk the dog
+Got it! I've fetched this task for you:
+  [T][ ] walk the dog
+You now have 3 tasks in your bowl!
+>>> bye
+Bye! *wags tail* Hope to fetch for you again soon!
+```
+
+### TC9: A completely unreadable save file
+
+**Aim:** Verify that a file containing nothing the program recognises loads as
+an empty list with a warning, rather than crashing on startup.
+
+```session
+>>> (startup)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> (write data/rex.txt)
+{"tasks": [{"description": "read book"}]}
+not a task line at all
+>>> (restart)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+Ruff! I couldn't read 2 line(s) in data/rex.txt, so I've skipped them.
 What can I fetch for you today?
 >>> list
 Here's what's in your bowl:

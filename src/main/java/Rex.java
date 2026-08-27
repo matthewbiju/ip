@@ -122,7 +122,15 @@ public class Rex {
      */
     private static ArrayList<Task> loadTasks(Storage storage) {
         try {
-            return storage.load();
+            ArrayList<Task> tasks = storage.load();
+            int skipped = storage.getSkippedLineCount();
+            if (skipped > 0) {
+                // Reported once with a count, so that a badly damaged file
+                // does not bury the greeting under one message per line.
+                System.out.println("Ruff! I couldn't read " + skipped + " line(s) in "
+                        + storage.getFile() + ", so I've skipped them.");
+            }
+            return tasks;
         } catch (IOException e) {
             System.out.println("Ruff! I couldn't read " + storage.getFile()
                     + " — starting with an empty list.");

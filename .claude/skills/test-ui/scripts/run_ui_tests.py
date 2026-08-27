@@ -140,6 +140,17 @@ def run_test_case(build_dir: Path, main_class: str, steps: list[tuple[str, list[
             transcript.append(">>> (restart)")
             _stop_process(proc)
             proc, q = _start_process(build_dir, main_class, work_dir)
+        elif step_input.startswith("(write ") and step_input.endswith(")"):
+            # Put a file on disk for the program to find. Its "expected output"
+            # lines are the file's contents, and nothing is read from the
+            # program, so this step is complete once the file is written.
+            relative_path = step_input[len("(write "):-1].strip()
+            target = work_dir / relative_path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("\n".join(expected_lines) + "\n")
+            transcript.append(f">>> {step_input}")
+            transcript.extend(expected_lines)
+            continue
         else:
             transcript.append(f">>> {step_input}")
             proc.stdin.write(step_input + "\n")
