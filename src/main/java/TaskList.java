@@ -1,5 +1,6 @@
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -81,12 +82,17 @@ public class TaskList {
     /**
      * Returns the tasks themselves, for saving to disk.
      *
-     * The list is handed back directly rather than copied, which is enough
-     * here because the only caller reads it. A stricter version would return
-     * an unmodifiable view so that no caller could change the list behind this
-     * class's back.
+     * The list is wrapped so that it cannot be changed through what is handed
+     * back. Returning the real list would undo the point of holding it
+     * privately: any caller could then clear it, or add a null to it, without
+     * going through this class at all.
+     *
+     * Note that this is a view, not a copy, so it stays in step with later
+     * changes made through this class and costs nothing to create. Trying to
+     * change it fails at run time rather than being caught by the compiler,
+     * which is the trade-off for not copying the list on every save.
      */
     public List<Task> getTasks() {
-        return tasks;
+        return Collections.unmodifiableList(tasks);
     }
 }
