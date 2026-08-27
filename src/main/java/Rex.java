@@ -71,9 +71,9 @@ public class Rex {
                     }
                     if (parts.length < 2 || parts[1].trim().isEmpty()) {
                         throw new RexException("Ruff! A deadline needs a '/by' date, "
-                                + "e.g. deadline return book /by Sunday.");
+                                + "e.g. deadline return book /by 2019-10-15.");
                     }
-                    tasks.add(new Deadline(description, parts[1].trim()));
+                    tasks.add(new Deadline(description, parseDateTime(parts[1])));
                     printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
                     break;
                 }
@@ -172,6 +172,24 @@ public class Rex {
             return CommandType.valueOf(commandWord.toUpperCase());
         } catch (IllegalArgumentException e) {
             return CommandType.UNKNOWN;
+        }
+    }
+
+    /**
+     * Parses a date the user typed after /by, /from or /to.
+     *
+     * TaskDateTime reports a date it cannot read as an IllegalArgumentException,
+     * which would end the program. It is turned into a RexException here so that
+     * it is shown as an "OOPS!!!" message and the session carries on, the same
+     * as any other mistake in a command.
+     */
+    private static TaskDateTime parseDateTime(String argument) throws RexException {
+        try {
+            return TaskDateTime.parse(argument);
+        } catch (IllegalArgumentException e) {
+            throw new RexException("Woof! I don't understand the date \"" + argument.trim()
+                    + "\". Write it as yyyy-mm-dd, e.g. 2019-10-15, "
+                    + "optionally with a 24-hour time, e.g. 2019-10-15 1800.");
         }
     }
 

@@ -1,7 +1,14 @@
+/** A task that must be finished by a particular date, and optionally by a time on that date. */
 public class Deadline extends Task {
-    protected String by;
+    protected TaskDateTime by;
 
-    public Deadline(String description, String by) {
+    /**
+     * Creates a deadline.
+     *
+     * @param description what has to be done.
+     * @param by when it has to be done by.
+     */
+    public Deadline(String description, TaskDateTime by) {
         super(description);
         this.by = by;
     }
@@ -16,8 +23,13 @@ public class Deadline extends Task {
         return " (by: " + by + ")";
     }
 
+    /**
+     * Note that this writes the date in its save format, not the one shown to
+     * the user: the file has to be read back, so it keeps the format that
+     * TaskDateTime.parse understands rather than the prettier display one.
+     */
     @Override
     public String toSaveFormat() {
-        return super.toSaveFormat() + " | " + by;
+        return super.toSaveFormat() + " | " + by.toSaveFormat();
     }
 }

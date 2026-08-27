@@ -65,7 +65,9 @@ Bye! *wags tail* Hope to fetch for you again soon!
 
 **Aim:** Verify all three task types can be added via `todo`/`deadline`/
 `event`, each with the correct type icon, confirmation message, and task
-count, and that `list` renders each type's details correctly.
+count, and that `list` renders each type's details correctly. Also verify that
+a deadline's date is shown in display format (`MMM dd yyyy`) rather than as
+typed, both with and without a time of day.
 
 ```session
 >>> (startup)
@@ -81,19 +83,24 @@ What can I fetch for you today?
 Got it! I've fetched this task for you:
   [T][ ] borrow book
 You now have 1 tasks in your bowl!
->>> deadline return book /by Sunday
+>>> deadline return book /by 2019-10-15
 Got it! I've fetched this task for you:
-  [D][ ] return book (by: Sunday)
+  [D][ ] return book (by: Oct 15 2019)
 You now have 2 tasks in your bowl!
+>>> deadline submit report /by 2019-10-15 1800
+Got it! I've fetched this task for you:
+  [D][ ] submit report (by: Oct 15 2019, 6:00PM)
+You now have 3 tasks in your bowl!
 >>> event project meeting /from Mon 2pm /to 4pm
 Got it! I've fetched this task for you:
   [E][ ] project meeting (from: Mon 2pm to: 4pm)
-You now have 3 tasks in your bowl!
+You now have 4 tasks in your bowl!
 >>> list
 Here's what's in your bowl:
 1.[T][ ] borrow book
-2.[D][ ] return book (by: Sunday)
-3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+2.[D][ ] return book (by: Oct 15 2019)
+3.[D][ ] submit report (by: Oct 15 2019, 6:00PM)
+4.[E][ ] project meeting (from: Mon 2pm to: 4pm)
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
@@ -117,9 +124,9 @@ What can I fetch for you today?
 Got it! I've fetched this task for you:
   [T][ ] borrow book
 You now have 1 tasks in your bowl!
->>> deadline return book /by Sunday
+>>> deadline return book /by 2019-10-15
 Got it! I've fetched this task for you:
-  [D][ ] return book (by: Sunday)
+  [D][ ] return book (by: Oct 15 2019)
 You now have 2 tasks in your bowl!
 >>> mark 1
 Nice catch! I've marked this task as done:
@@ -130,7 +137,7 @@ Okay, putting this one back in the yard — not done yet:
 >>> list
 Here's what's in your bowl:
 1.[T][ ] borrow book
-2.[D][ ] return book (by: Sunday)
+2.[D][ ] return book (by: Oct 15 2019)
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
@@ -139,7 +146,9 @@ Bye! *wags tail* Hope to fetch for you again soon!
 
 **Aim:** Verify bad input produces a clear error (via `RexException`) instead
 of being silently ignored or crashing the program, and that the program
-keeps running afterward.
+keeps running afterward. Includes a date the program cannot read, which
+reaches it as an `IllegalArgumentException` from `TaskDateTime` and must be
+reported the same way as any other mistake in a command.
 
 ```session
 >>> (startup)
@@ -156,7 +165,11 @@ OOPS!!! Ruff! The description of a todo cannot be empty.
 >>> blah
 OOPS!!! Woof? I don't know what that means :-(
 >>> deadline return book
-OOPS!!! Ruff! A deadline needs a '/by' date, e.g. deadline return book /by Sunday.
+OOPS!!! Ruff! A deadline needs a '/by' date, e.g. deadline return book /by 2019-10-15.
+>>> deadline return book /by Sunday
+OOPS!!! Woof! I don't understand the date "Sunday". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
+>>> deadline return book /by 15/10/2019
+OOPS!!! Woof! I don't understand the date "15/10/2019". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
 >>> mark abc
 OOPS!!! Woof! "abc" isn't a valid task number.
 >>> mark 99
@@ -189,9 +202,9 @@ What can I fetch for you today?
 Got it! I've fetched this task for you:
   [T][ ] read book
 You now have 1 tasks in your bowl!
->>> deadline return book /by Sunday
+>>> deadline return book /by 2019-10-15
 Got it! I've fetched this task for you:
-  [D][ ] return book (by: Sunday)
+  [D][ ] return book (by: Oct 15 2019)
 You now have 2 tasks in your bowl!
 >>> todo borrow book
 Got it! I've fetched this task for you:
@@ -199,7 +212,7 @@ Got it! I've fetched this task for you:
 You now have 3 tasks in your bowl!
 >>> delete 2
 Gotcha! I've removed this task from your bowl:
-  [D][ ] return book (by: Sunday)
+  [D][ ] return book (by: Oct 15 2019)
 You now have 2 tasks in your bowl!
 >>> list
 Here's what's in your bowl:
@@ -216,7 +229,9 @@ Bye! *wags tail* Hope to fetch for you again soon!
 **Aim:** Verify that tasks added in one session are still present, with their
 done/not-done state and type-specific details intact, when the program is
 started again. Also verify that a deletion is persisted, i.e. the restarted
-session does not bring a deleted task back.
+session does not bring a deleted task back, and that a deadline's date
+survives the round trip through the file unchanged — including whether a time
+of day was given, which is written to the file and must be read back.
 
 ```session
 >>> (startup)
@@ -232,25 +247,29 @@ What can I fetch for you today?
 Got it! I've fetched this task for you:
   [T][ ] read book
 You now have 1 tasks in your bowl!
->>> deadline return book /by Sunday
+>>> deadline return book /by 2019-10-15
 Got it! I've fetched this task for you:
-  [D][ ] return book (by: Sunday)
+  [D][ ] return book (by: Oct 15 2019)
 You now have 2 tasks in your bowl!
 >>> event project meeting /from Mon 2pm /to 4pm
 Got it! I've fetched this task for you:
   [E][ ] project meeting (from: Mon 2pm to: 4pm)
 You now have 3 tasks in your bowl!
+>>> deadline submit report /by 2019-10-15 1800
+Got it! I've fetched this task for you:
+  [D][ ] submit report (by: Oct 15 2019, 6:00PM)
+You now have 4 tasks in your bowl!
 >>> todo throw away
 Got it! I've fetched this task for you:
   [T][ ] throw away
-You now have 4 tasks in your bowl!
+You now have 5 tasks in your bowl!
 >>> mark 1
 Nice catch! I've marked this task as done:
   [T][X] read book
->>> delete 4
+>>> delete 5
 Gotcha! I've removed this task from your bowl:
   [T][ ] throw away
-You now have 3 tasks in your bowl!
+You now have 4 tasks in your bowl!
 >>> (restart)
  ____  _______  __
 |  _ \| ____\ \/ /
@@ -263,8 +282,9 @@ What can I fetch for you today?
 >>> list
 Here's what's in your bowl:
 1.[T][X] read book
-2.[D][ ] return book (by: Sunday)
+2.[D][ ] return book (by: Oct 15 2019)
 3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+4.[D][ ] submit report (by: Oct 15 2019, 6:00PM)
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
@@ -296,7 +316,8 @@ Bye! *wags tail* Hope to fetch for you again soon!
 a single counted warning, that the readable tasks around them still load, and
 that the program remains usable afterwards. Covers each way a line can be
 rejected: unknown type letter, wrong field count for the type, a done flag
-that isn't 0 or 1, and an empty description.
+that isn't 0 or 1, an empty description, and a date the program cannot read
+(which a file saved before dates were understood would be full of).
 
 ```session
 >>> (startup)
@@ -315,7 +336,8 @@ D | 0 | deadline with no by field
 E | 0 | event missing its to field | Mon 2pm
 T | 9 | done flag is not 0 or 1
 T | 0 | 
-D | 1 | return book | Sunday
+D | 0 | deadline whose date cannot be read | Sunday
+D | 1 | return book | 2019-10-15
 >>> (restart)
  ____  _______  __
 |  _ \| ____\ \/ /
@@ -324,12 +346,12 @@ D | 1 | return book | Sunday
 |_| \_\_____/_/\_\
 
 Woof woof! I'm Rex, your task-fetching sidekick!
-Ruff! I couldn't read 5 line(s) in data/rex.txt, so I've skipped them.
+Ruff! I couldn't read 6 line(s) in data/rex.txt, so I've skipped them.
 What can I fetch for you today?
 >>> list
 Here's what's in your bowl:
 1.[T][X] read book
-2.[D][X] return book (by: Sunday)
+2.[D][X] return book (by: Oct 15 2019)
 >>> todo walk the dog
 Got it! I've fetched this task for you:
   [T][ ] walk the dog
