@@ -1,3 +1,5 @@
+package rex.task;
+
 import java.time.LocalDate;
 
 /** A task that must be finished by a particular date, and optionally by a time on that date. */

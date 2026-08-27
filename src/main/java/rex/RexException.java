@@ -1,3 +1,5 @@
+package rex;
+
 /**
  * Signals that the user's input could not be understood or acted on
  * (e.g. an unrecognized command, a missing description, or an invalid

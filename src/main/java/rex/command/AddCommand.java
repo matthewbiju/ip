@@ -1,3 +1,9 @@
+package rex.command;
+
+import rex.TaskList;
+import rex.Ui;
+import rex.task.Task;
+
 /** Adds a task to the list. Covers todos, deadlines and events alike. */
 public class AddCommand extends Command {
     private final Task task;

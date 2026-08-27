@@ -1,3 +1,5 @@
+package rex.task;
+
 import java.time.LocalDate;
 
 public class Task {
@@ -19,6 +21,18 @@ public class Task {
 
     public String getStatusIcon() {
         return (isDone ? "X" : " ");
+    }
+
+    /**
+     * Returns what the task says, e.g. "return book".
+     *
+     * The field itself is protected, which lets subclasses use it but not
+     * anything else once the classes sit in different packages. Whoever
+     * displays a task needs the description, so it is offered here rather
+     * than by widening the field.
+     */
+    public String getDescription() {
+        return description;
     }
 
     public String getTypeIcon() {

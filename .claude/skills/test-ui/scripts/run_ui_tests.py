@@ -35,15 +35,22 @@ _TIMEOUT = object()
 
 
 def find_main_class(src_dir: Path) -> str:
-    for java_file in sorted(src_dir.glob("*.java")):
+    """Returns the fully qualified name of the class holding the main method.
+
+    The name is built from the file's path below the source root, so a class in
+    a package is named the way java expects it on the command line: a file at
+    rex/Rex.java is reported as "rex.Rex", while one sitting directly in the
+    source root is reported as just "Rex".
+    """
+    for java_file in sorted(src_dir.rglob("*.java")):
         if "public static void main" in java_file.read_text():
-            return java_file.stem
+            return ".".join(java_file.relative_to(src_dir).with_suffix("").parts)
     raise RuntimeError(f"No file with a main method found in {src_dir}")
 
 
 def compile_project(src_dir: Path, build_dir: Path) -> None:
     build_dir.mkdir(parents=True, exist_ok=True)
-    java_files = [str(p) for p in sorted(src_dir.glob("*.java"))]
+    java_files = [str(p) for p in sorted(src_dir.rglob("*.java"))]
     if not java_files:
         raise RuntimeError(f"No .java files found in {src_dir}")
     result = subprocess.run(

@@ -1,7 +1,10 @@
+package rex;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import rex.task.Task;
 
 /**
  * The tasks the user is keeping, and the operations that work on them as a

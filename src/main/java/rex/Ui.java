@@ -1,6 +1,9 @@
+package rex;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
+import rex.task.Task;
 
 /**
  * Everything the user sees and types.
@@ -153,6 +156,6 @@ public class Ui {
     /** Returns a task's one-line form, e.g. "[D][ ] return book (by: Oct 15 2019)". */
     private String formatTask(Task task) {
         return "[" + task.getTypeIcon() + "][" + task.getStatusIcon() + "] "
-                + task.description + task.getDetails();
+                + task.getDescription() + task.getDetails();
     }
 }

@@ -1,9 +1,16 @@
+package rex;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import rex.task.Deadline;
+import rex.task.Event;
+import rex.task.Task;
+import rex.task.TaskDateTime;
+import rex.task.ToDo;
 
 /**
  * Saves the task list to a file on disk and loads it back, so that tasks

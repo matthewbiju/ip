@@ -1,3 +1,9 @@
+package rex.command;
+
+import rex.RexException;
+import rex.TaskList;
+import rex.Ui;
+
 /**
  * One command the user gave, ready to be carried out.
  *
