@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 
 public class Rex {
     public static void main(String[] args) {
@@ -12,7 +11,7 @@ public class Rex {
         // anything the load has to report appears before the user is asked
         // for a command.
         Storage storage = new Storage("data", "rex.txt");
-        ArrayList<Task> tasks = loadTasks(storage, ui);
+        TaskList tasks = loadTasks(storage, ui);
 
         ui.showReady();
 
@@ -39,7 +38,7 @@ public class Rex {
                 }
                 case DELETE: {
                     int index = parseTaskIndex(argument, tasks.size());
-                    Task removed = tasks.remove(index);
+                    Task removed = tasks.delete(index);
                     ui.showRemoved(removed, tasks.size());
                     break;
                 }
@@ -88,7 +87,7 @@ public class Rex {
                 }
                 case ON: {
                     LocalDate day = parseQueryDate(argument);
-                    ui.showTasksOn(TaskDateTime.formatDate(day), tasks, day);
+                    ui.showTasksOn(TaskDateTime.formatDate(day), tasks, tasks.findIndicesOn(day));
                     break;
                 }
                 case UNKNOWN:
@@ -115,9 +114,9 @@ public class Rex {
      * read. Refusing to start would leave the user with no way to use the
      * program at all, which is worse than starting fresh.
      */
-    private static ArrayList<Task> loadTasks(Storage storage, Ui ui) {
+    private static TaskList loadTasks(Storage storage, Ui ui) {
         try {
-            ArrayList<Task> tasks = storage.load();
+            TaskList tasks = new TaskList(storage.load());
             int skipped = storage.getSkippedLineCount();
             if (skipped > 0) {
                 ui.showSkippedLines(skipped, storage.getFile());
@@ -125,7 +124,7 @@ public class Rex {
             return tasks;
         } catch (IOException e) {
             ui.showLoadingError(storage.getFile());
-            return new ArrayList<>();
+            return new TaskList();
         }
     }
 
@@ -136,9 +135,9 @@ public class Rex {
      * typed something wrong), and it must not end the session: the tasks they
      * have added are still usable in memory.
      */
-    private static void saveTasks(Storage storage, ArrayList<Task> tasks, Ui ui) {
+    private static void saveTasks(Storage storage, TaskList tasks, Ui ui) {
         try {
-            storage.save(tasks);
+            storage.save(tasks.getTasks());
         } catch (IOException e) {
             ui.showSavingError(storage.getFile());
         }

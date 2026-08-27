@@ -1,6 +1,4 @@
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -95,7 +93,7 @@ public class Ui {
     }
 
     /** Shows every task, numbered from 1. */
-    public void showTaskList(List<Task> tasks) {
+    public void showTaskList(TaskList tasks) {
         System.out.println("Here's what's in your bowl:");
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println(numberedTask(i + 1, tasks.get(i)));
@@ -103,35 +101,26 @@ public class Ui {
     }
 
     /**
-     * Shows the tasks falling on one day, or says that none do.
+     * Shows the tasks at the given positions, or says that the day has none.
      *
      * Each task keeps the number it has in the full list rather than being
      * renumbered from 1, so a number seen here still refers to the same task
-     * for mark, unmark and delete.
+     * for mark, unmark and delete. That is why positions are passed in
+     * alongside the list, instead of just the matching tasks.
      *
      * @param dayShown the day, already in display form, e.g. "Oct 15 2019".
-     * @param tasks every task, of which the matching ones are shown.
-     * @param day the day being asked about.
+     * @param tasks every task the user has.
+     * @param matchingIndices the positions, counting from 0, of the ones to show.
      */
-    public void showTasksOn(String dayShown, List<Task> tasks, LocalDate day) {
-        // The matching lines are gathered before anything is printed, so that a
-        // day with nothing on it can say so instead of printing a heading
-        // followed by nothing.
-        List<String> matchingLines = new ArrayList<>();
-        for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).isOn(day)) {
-                matchingLines.add(numberedTask(i + 1, tasks.get(i)));
-            }
-        }
-
-        if (matchingLines.isEmpty()) {
+    public void showTasksOn(String dayShown, TaskList tasks, List<Integer> matchingIndices) {
+        if (matchingIndices.isEmpty()) {
             System.out.println("Nothing on " + dayShown + " — your bowl's empty that day!");
             return;
         }
 
         System.out.println("Here's what's on " + dayShown + ":");
-        for (String line : matchingLines) {
-            System.out.println(line);
+        for (int index : matchingIndices) {
+            System.out.println(numberedTask(index + 1, tasks.get(index)));
         }
     }
 
