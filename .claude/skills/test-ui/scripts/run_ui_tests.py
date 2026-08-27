@@ -21,6 +21,7 @@ import queue
 import re
 import subprocess
 import sys
+import tempfile
 import threading
 from pathlib import Path
 
@@ -96,26 +97,53 @@ def _read_line(q: "queue.Queue", timeout: float):
         return _TIMEOUT
 
 
-def run_test_case(build_dir: Path, main_class: str, steps: list[tuple[str, list[str]]]):
-    """Returns (passed, transcript_lines, failure_or_None)."""
+def _start_process(build_dir: Path, main_class: str, work_dir: Path):
+    """Launches the program in work_dir, returning (process, output_queue).
+
+    The program is run with work_dir as its working directory so that any
+    files it creates (e.g. its save file) land in a throwaway directory
+    instead of the repository, keeping test cases isolated from each other
+    and from real data. build_dir must therefore be an absolute path.
+    """
     proc = subprocess.Popen(
         ["java", "-cp", str(build_dir), main_class],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        text=True, bufsize=1,
+        text=True, bufsize=1, cwd=str(work_dir),
     )
     q: "queue.Queue" = queue.Queue()
     threading.Thread(target=_reader_worker, args=(proc, q), daemon=True).start()
+    return proc, q
+
+
+def _stop_process(proc: subprocess.Popen) -> None:
+    proc.terminate()
+    try:
+        proc.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+
+
+def run_test_case(build_dir: Path, main_class: str, steps: list[tuple[str, list[str]]],
+                  work_dir: Path):
+    """Returns (passed, transcript_lines, failure_or_None)."""
+    proc, q = _start_process(build_dir, main_class, work_dir)
 
     transcript: list[str] = []
     failure = None
 
     for step_input, expected_lines in steps:
-        if step_input != "(startup)":
+        if step_input == "(startup)":
+            transcript.append(">>> (startup)")
+        elif step_input == "(restart)":
+            # Quit and relaunch in the same working directory, so that whatever
+            # the previous session wrote to disk is still there for this one.
+            transcript.append(">>> (restart)")
+            _stop_process(proc)
+            proc, q = _start_process(build_dir, main_class, work_dir)
+        else:
             transcript.append(f">>> {step_input}")
             proc.stdin.write(step_input + "\n")
             proc.stdin.flush()
-        else:
-            transcript.append(">>> (startup)")
 
         for expected_line in expected_lines:
             item = _read_line(q, READ_TIMEOUT_SECONDS)
@@ -134,11 +162,7 @@ def run_test_case(build_dir: Path, main_class: str, steps: list[tuple[str, list[
         if failure is not None:
             break
 
-    proc.terminate()
-    try:
-        proc.wait(timeout=2)
-    except subprocess.TimeoutExpired:
-        proc.kill()
+    _stop_process(proc)
 
     return failure is None, transcript, failure
 
@@ -157,10 +181,16 @@ def main() -> int:
     main_class = find_main_class(SRC_DIR)
     print(f"Compiling {SRC_DIR} (entry point: {main_class})...")
     compile_project(SRC_DIR, BUILD_DIR)
+    build_dir = BUILD_DIR.resolve()
 
     for name, steps in test_cases:
         print(f"\n=== {name} ===")
-        passed, transcript, failure = run_test_case(BUILD_DIR, main_class, steps)
+        # Each test case gets its own empty directory to run in, so that files
+        # written by one case cannot be seen by the next one.
+        with tempfile.TemporaryDirectory(prefix="rex-ui-test-") as work_dir:
+            passed, transcript, failure = run_test_case(
+                build_dir, main_class, steps, Path(work_dir)
+            )
         print("\n".join(transcript))
 
         if not passed:

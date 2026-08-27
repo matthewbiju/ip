@@ -16,12 +16,23 @@ python3 .claude/skills/test-ui/scripts/run_ui_tests.py
 ## Format
 
 Each test case is a fenced ` ```session ` block. A line starting with `>>> `
-sends the rest of that line as one line of input (or, if it is exactly
-`(startup)`, sends nothing and just captures the program's output before any
-input is read). All following lines up to the next `>>> ` (or the end of the
-block) are the expected output for that step, compared line for line.
-Trailing whitespace on each line is ignored; everything else must match
-exactly.
+sends the rest of that line as one line of input. All following lines up to
+the next `>>> ` (or the end of the block) are the expected output for that
+step, compared line for line. Trailing whitespace on each line is ignored;
+everything else must match exactly.
+
+Two inputs are directives rather than input sent to the program:
+
+* `(startup)` sends nothing, and just captures the program's output before
+  any input is read.
+* `(restart)` quits the program and launches it again, then captures the new
+  session's startup output. Because both sessions run in the same working
+  directory, this is how a test case checks that something written to disk by
+  one session is still there for the next one.
+
+Each test case runs in its own empty temporary directory, so files a test
+case writes are never seen by another test case and never touch real data in
+the repository.
 
 ## Test cases
 
