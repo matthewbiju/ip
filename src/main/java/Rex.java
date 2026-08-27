@@ -2,58 +2,45 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Rex {
     public static void main(String[] args) {
-        String banner = " ____  _______  __\n"
-                + "|  _ \\| ____\\ \\/ /\n"
-                + "| |_) |  _|  \\  / \n"
-                + "|  _ <| |___ /  \\ \n"
-                + "|_| \\_\\_____/_/\\_\\\n";
-        System.out.println(banner);
-        System.out.println("Woof woof! I'm Rex, your task-fetching sidekick!");
+        Ui ui = new Ui();
+        ui.showWelcome();
 
-        // Loaded between the two greeting lines so that anything the load has
-        // to report appears before the user is invited to type a command.
+        // Loaded between the greeting and the invitation to type, so that
+        // anything the load has to report appears before the user is asked
+        // for a command.
         Storage storage = new Storage("data", "rex.txt");
-        ArrayList<Task> tasks = loadTasks(storage);
+        ArrayList<Task> tasks = loadTasks(storage, ui);
 
-        System.out.println("What can I fetch for you today?");
+        ui.showReady();
 
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
+        String input = ui.readCommand();
         CommandType command = parseCommandType(commandWordOf(input));
         while (command != CommandType.BYE) {
             String argument = argumentOf(input);
             try {
                 switch (command) {
                 case LIST:
-                    System.out.println("Here's what's in your bowl:");
-                    for (int i = 0; i < tasks.size(); i++) {
-                        System.out.println((i + 1) + "." + taskLine(tasks.get(i)));
-                    }
+                    ui.showTaskList(tasks);
                     break;
                 case MARK: {
                     int index = parseTaskIndex(argument, tasks.size());
                     tasks.get(index).markAsDone();
-                    System.out.println("Nice catch! I've marked this task as done:");
-                    System.out.println("  " + taskLine(tasks.get(index)));
+                    ui.showMarked(tasks.get(index));
                     break;
                 }
                 case UNMARK: {
                     int index = parseTaskIndex(argument, tasks.size());
                     tasks.get(index).markAsNotDone();
-                    System.out.println("Okay, putting this one back in the yard — not done yet:");
-                    System.out.println("  " + taskLine(tasks.get(index)));
+                    ui.showUnmarked(tasks.get(index));
                     break;
                 }
                 case DELETE: {
                     int index = parseTaskIndex(argument, tasks.size());
                     Task removed = tasks.remove(index);
-                    System.out.println("Gotcha! I've removed this task from your bowl:");
-                    System.out.println("  " + taskLine(removed));
-                    System.out.println("You now have " + tasks.size() + " tasks in your bowl!");
+                    ui.showRemoved(removed, tasks.size());
                     break;
                 }
                 case TODO: {
@@ -62,7 +49,7 @@ public class Rex {
                         throw new RexException("Ruff! The description of a todo cannot be empty.");
                     }
                     tasks.add(new ToDo(description));
-                    printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
+                    ui.showAdded(tasks.get(tasks.size() - 1), tasks.size());
                     break;
                 }
                 case DEADLINE: {
@@ -76,7 +63,7 @@ public class Rex {
                                 + "e.g. deadline return book /by 2019-10-15.");
                     }
                     tasks.add(new Deadline(description, parseDateTime(parts[1])));
-                    printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
+                    ui.showAdded(tasks.get(tasks.size() - 1), tasks.size());
                     break;
                 }
                 case EVENT: {
@@ -96,34 +83,12 @@ public class Rex {
                     }
                     tasks.add(new Event(description, parseDateTime(toParts[0]),
                             parseDateTime(toParts[1])));
-                    printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
+                    ui.showAdded(tasks.get(tasks.size() - 1), tasks.size());
                     break;
                 }
                 case ON: {
                     LocalDate day = parseQueryDate(argument);
-                    String dayShown = TaskDateTime.formatDate(day);
-
-                    // The matches are gathered before anything is printed, so
-                    // that a day with nothing on it can say so instead of
-                    // printing a heading followed by nothing.
-                    ArrayList<String> matchingLines = new ArrayList<>();
-                    for (int i = 0; i < tasks.size(); i++) {
-                        if (tasks.get(i).isOn(day)) {
-                            // Numbered by position in the full list, not from
-                            // 1, so that a number seen here still means the
-                            // same task to mark, unmark or delete.
-                            matchingLines.add((i + 1) + "." + taskLine(tasks.get(i)));
-                        }
-                    }
-
-                    if (matchingLines.isEmpty()) {
-                        System.out.println("Nothing on " + dayShown + " — your bowl's empty that day!");
-                    } else {
-                        System.out.println("Here's what's on " + dayShown + ":");
-                        for (String line : matchingLines) {
-                            System.out.println(line);
-                        }
-                    }
+                    ui.showTasksOn(TaskDateTime.formatDate(day), tasks, day);
                     break;
                 }
                 case UNKNOWN:
@@ -133,16 +98,16 @@ public class Rex {
                 // Reached only if the command succeeded, so the list is saved
                 // exactly when it actually changed.
                 if (command.isTaskListChanged()) {
-                    saveTasks(storage, tasks);
+                    saveTasks(storage, tasks, ui);
                 }
             } catch (RexException e) {
-                System.out.println("OOPS!!! " + e.getMessage());
+                ui.showError(e.getMessage());
             }
-            input = scanner.nextLine();
+            input = ui.readCommand();
             command = parseCommandType(commandWordOf(input));
         }
-        System.out.println("Bye! *wags tail* Hope to fetch for you again soon!");
-        scanner.close();
+        ui.showFarewell();
+        ui.close();
     }
 
     /**
@@ -150,20 +115,16 @@ public class Rex {
      * read. Refusing to start would leave the user with no way to use the
      * program at all, which is worse than starting fresh.
      */
-    private static ArrayList<Task> loadTasks(Storage storage) {
+    private static ArrayList<Task> loadTasks(Storage storage, Ui ui) {
         try {
             ArrayList<Task> tasks = storage.load();
             int skipped = storage.getSkippedLineCount();
             if (skipped > 0) {
-                // Reported once with a count, so that a badly damaged file
-                // does not bury the greeting under one message per line.
-                System.out.println("Ruff! I couldn't read " + skipped + " line(s) in "
-                        + storage.getFile() + ", so I've skipped them.");
+                ui.showSkippedLines(skipped, storage.getFile());
             }
             return tasks;
         } catch (IOException e) {
-            System.out.println("Ruff! I couldn't read " + storage.getFile()
-                    + " — starting with an empty list.");
+            ui.showLoadingError(storage.getFile());
             return new ArrayList<>();
         }
     }
@@ -175,12 +136,11 @@ public class Rex {
      * typed something wrong), and it must not end the session: the tasks they
      * have added are still usable in memory.
      */
-    private static void saveTasks(Storage storage, ArrayList<Task> tasks) {
+    private static void saveTasks(Storage storage, ArrayList<Task> tasks, Ui ui) {
         try {
             storage.save(tasks);
         } catch (IOException e) {
-            System.out.println("Ruff! I couldn't save to " + storage.getFile()
-                    + " — your tasks are safe for now, but they may not survive a restart.");
+            ui.showSavingError(storage.getFile());
         }
     }
 
@@ -253,18 +213,9 @@ public class Rex {
             throw new RexException("Woof! \"" + argument.trim() + "\" isn't a valid task number.");
         }
         if (index < 0 || index >= taskCount) {
-            throw new RexException("Woof! There's no task numbered " + argument.trim() + " in your bowl.");
+            throw new RexException("Woof! There's no task numbered " + argument.trim()
+                    + " in your bowl.");
         }
         return index;
-    }
-
-    private static String taskLine(Task task) {
-        return "[" + task.getTypeIcon() + "][" + task.getStatusIcon() + "] " + task.description + task.getDetails();
-    }
-
-    private static void printAddedConfirmation(Task task, int taskCount) {
-        System.out.println("Got it! I've fetched this task for you:");
-        System.out.println("  " + taskLine(task));
-        System.out.println("You now have " + taskCount + " tasks in your bowl!");
     }
 }
