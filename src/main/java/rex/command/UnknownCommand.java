@@ -1,3 +1,9 @@
+package rex.command;
+
+import rex.RexException;
+import rex.TaskList;
+import rex.Ui;
+
 /**
  * A command word the program does not recognize.
  *

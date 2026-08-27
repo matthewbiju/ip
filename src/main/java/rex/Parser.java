@@ -1,5 +1,21 @@
+package rex;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import rex.command.AddCommand;
+import rex.command.Command;
+import rex.command.CommandType;
+import rex.command.DeleteCommand;
+import rex.command.ExitCommand;
+import rex.command.ListCommand;
+import rex.command.MarkCommand;
+import rex.command.OnCommand;
+import rex.command.UnknownCommand;
+import rex.command.UnmarkCommand;
+import rex.task.Deadline;
+import rex.task.Event;
+import rex.task.TaskDateTime;
+import rex.task.ToDo;
 
 /**
  * Makes sense of what the user typed.

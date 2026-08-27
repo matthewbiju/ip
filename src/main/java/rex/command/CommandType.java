@@ -1,3 +1,5 @@
+package rex.command;
+
 /**
  * The set of recognized command words. UNKNOWN represents any input word
  * that doesn't match one of the others (i.e. an unrecognized command).

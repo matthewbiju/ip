@@ -1,6 +1,9 @@
+package rex;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
+import rex.task.Task;
 
 /**
  * Everything the user sees and types.

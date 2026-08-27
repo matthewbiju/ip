@@ -1,3 +1,10 @@
+package rex.command;
+
+import rex.RexException;
+import rex.TaskList;
+import rex.Ui;
+import rex.task.Task;
+
 /** Removes a task from the list. */
 public class DeleteCommand extends Command {
     private final int taskNumber;

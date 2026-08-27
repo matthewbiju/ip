@@ -1,4 +1,7 @@
+package rex;
+
 import java.io.IOException;
+import rex.command.Command;
 
 /**
  * A task-tracking chatbot that reads commands from the console.
