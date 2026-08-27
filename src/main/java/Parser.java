@@ -105,29 +105,21 @@ public class Parser {
     }
 
     /**
-     * Reads a task number as the user typed it and returns it as a position
-     * counting from 0.
+     * Reads a task number as the user typed it, counting from 1.
      *
-     * The count is passed in so that a number outside the list is refused here
-     * rather than becoming an out-of-bounds error later.
+     * Only whether it is a number at all is checked here. Whether it names a
+     * task depends on how many tasks there are, which the task list knows and
+     * this class does not.
      *
      * @param argument the number the user typed, e.g. "3".
-     * @param taskCount how many tasks there are.
-     * @return the position, counting from 0.
-     * @throws RexException if the argument is not a number, or names no task.
+     * @throws RexException if the argument is not a number.
      */
-    public static int parseTaskIndex(String argument, int taskCount) throws RexException {
-        int index;
+    public static int parseTaskNumber(String argument) throws RexException {
         try {
-            index = Integer.parseInt(argument.trim()) - 1;
+            return Integer.parseInt(argument.trim());
         } catch (NumberFormatException e) {
             throw new RexException("Woof! \"" + argument.trim() + "\" isn't a valid task number.");
         }
-        if (index < 0 || index >= taskCount) {
-            throw new RexException("Woof! There's no task numbered " + argument.trim()
-                    + " in your bowl.");
-        }
-        return index;
     }
 
     /**

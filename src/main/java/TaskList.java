@@ -49,13 +49,41 @@ public class TaskList {
     }
 
     /**
-     * Removes the task at a position, counting from 0.
+     * Returns the task the user means by a number, counting from 1 as shown
+     * in the list.
      *
-     * @param index a position that has already been checked against size().
-     * @return the task that was removed, so that it can be shown to the user.
+     * Whether a number names a task depends on how many there are, which is
+     * this class's own business, so the check belongs here rather than in
+     * whatever is about to use the task.
+     *
+     * @param number the task number as the user typed it, counting from 1.
+     * @throws RexException if no task has that number.
      */
-    public Task delete(int index) {
-        return tasks.remove(index);
+    public Task getByNumber(int number) throws RexException {
+        return tasks.get(requireExistingNumber(number));
+    }
+
+    /**
+     * Removes and returns the task the user means by a number, counting from 1.
+     *
+     * @param number the task number as the user typed it, counting from 1.
+     * @return the task that was removed, so that it can be shown to the user.
+     * @throws RexException if no task has that number.
+     */
+    public Task deleteByNumber(int number) throws RexException {
+        return tasks.remove(requireExistingNumber(number));
+    }
+
+    /**
+     * Turns a task number counting from 1 into a position counting from 0,
+     * refusing any number that names no task.
+     */
+    private int requireExistingNumber(int number) throws RexException {
+        int index = number - 1;
+        if (index < 0 || index >= tasks.size()) {
+            throw new RexException("Woof! There's no task numbered " + number + " in your bowl.");
+        }
+        return index;
     }
 
     /**

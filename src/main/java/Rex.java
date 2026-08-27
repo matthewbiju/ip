@@ -74,20 +74,19 @@ public class Rex {
             ui.showTaskList(tasks);
             break;
         case MARK: {
-            int index = Parser.parseTaskIndex(argument, tasks.size());
-            tasks.get(index).markAsDone();
-            ui.showMarked(tasks.get(index));
+            Task task = tasks.getByNumber(Parser.parseTaskNumber(argument));
+            task.markAsDone();
+            ui.showMarked(task);
             break;
         }
         case UNMARK: {
-            int index = Parser.parseTaskIndex(argument, tasks.size());
-            tasks.get(index).markAsNotDone();
-            ui.showUnmarked(tasks.get(index));
+            Task task = tasks.getByNumber(Parser.parseTaskNumber(argument));
+            task.markAsNotDone();
+            ui.showUnmarked(task);
             break;
         }
         case DELETE: {
-            int index = Parser.parseTaskIndex(argument, tasks.size());
-            Task removed = tasks.delete(index);
+            Task removed = tasks.deleteByNumber(Parser.parseTaskNumber(argument));
             ui.showRemoved(removed, tasks.size());
             break;
         }
