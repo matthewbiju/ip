@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+
 /** A task that must be finished by a particular date, and optionally by a time on that date. */
 public class Deadline extends Task {
     protected TaskDateTime by;
@@ -21,6 +23,12 @@ public class Deadline extends Task {
     @Override
     public String getDetails() {
         return " (by: " + by + ")";
+    }
+
+    /** A deadline falls on the day it is due, whatever time of day that is. */
+    @Override
+    public boolean isOn(LocalDate date) {
+        return by.isOn(date);
     }
 
     /**

@@ -3,7 +3,7 @@
  * that doesn't match one of the others (i.e. an unrecognized command).
  */
 public enum CommandType {
-    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, BYE, UNKNOWN;
+    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, ON, BYE, UNKNOWN;
 
     /**
      * Returns true if this command changes the task list, and so requires the

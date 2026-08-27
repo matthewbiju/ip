@@ -406,3 +406,74 @@ Here's what's in your bowl:
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
+
+### TC10: Find the tasks falling on a given day
+
+**Aim:** Verify `on` lists only the tasks that fall on the day asked about.
+Covers a deadline matching its due day whatever time of day it carries, a
+multi-day event matching every day it spans including both its first and last,
+a todo never matching because it has no date, and a day with nothing on it
+reporting that instead of an empty heading. Also verify that matches keep
+their number from the full list, so a number seen here still refers to the
+same task for `mark`/`unmark`/`delete`, and that `on` requires a whole day —
+a missing, unreadable or time-bearing argument is refused.
+
+```session
+>>> (startup)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> todo borrow book
+Got it! I've fetched this task for you:
+  [T][ ] borrow book
+You now have 1 tasks in your bowl!
+>>> deadline return book /by 2019-10-15
+Got it! I've fetched this task for you:
+  [D][ ] return book (by: Oct 15 2019)
+You now have 2 tasks in your bowl!
+>>> deadline submit report /by 2019-10-15 1800
+Got it! I've fetched this task for you:
+  [D][ ] submit report (by: Oct 15 2019, 6:00PM)
+You now have 3 tasks in your bowl!
+>>> event team retreat /from 2019-10-18 /to 2019-10-20
+Got it! I've fetched this task for you:
+  [E][ ] team retreat (from: Oct 18 2019 to: Oct 20 2019)
+You now have 4 tasks in your bowl!
+>>> on 2019-10-15
+Here's what's on Oct 15 2019:
+2.[D][ ] return book (by: Oct 15 2019)
+3.[D][ ] submit report (by: Oct 15 2019, 6:00PM)
+>>> on 2019-10-18
+Here's what's on Oct 18 2019:
+4.[E][ ] team retreat (from: Oct 18 2019 to: Oct 20 2019)
+>>> on 2019-10-19
+Here's what's on Oct 19 2019:
+4.[E][ ] team retreat (from: Oct 18 2019 to: Oct 20 2019)
+>>> on 2019-10-20
+Here's what's on Oct 20 2019:
+4.[E][ ] team retreat (from: Oct 18 2019 to: Oct 20 2019)
+>>> on 2019-10-21
+Nothing on Oct 21 2019 — your bowl's empty that day!
+>>> on 2019-10-16
+Nothing on Oct 16 2019 — your bowl's empty that day!
+>>> mark 3
+Nice catch! I've marked this task as done:
+  [D][X] submit report (by: Oct 15 2019, 6:00PM)
+>>> on 2019-10-15
+Here's what's on Oct 15 2019:
+2.[D][ ] return book (by: Oct 15 2019)
+3.[D][X] submit report (by: Oct 15 2019, 6:00PM)
+>>> on
+OOPS!!! Woof! Tell me which day to look at, written as yyyy-mm-dd, e.g. on 2019-10-15.
+>>> on Tuesday
+OOPS!!! Woof! Tell me which day to look at, written as yyyy-mm-dd, e.g. on 2019-10-15.
+>>> on 2019-10-15 1800
+OOPS!!! Woof! Tell me which day to look at, written as yyyy-mm-dd, e.g. on 2019-10-15.
+>>> bye
+Bye! *wags tail* Hope to fetch for you again soon!
+```

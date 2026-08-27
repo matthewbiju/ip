@@ -80,6 +80,18 @@ public class TaskDateTime {
         }
     }
 
+    /**
+     * Returns a plain day in the same format used to show a task's date, e.g.
+     * "Oct 15 2019".
+     *
+     * This lives here so that every date the user sees is formatted by this
+     * class, rather than the display format being repeated wherever a date is
+     * printed.
+     */
+    public static String formatDate(LocalDate date) {
+        return DISPLAY_DATE_ONLY.format(date);
+    }
+
     /** Returns the day this falls on, ignoring any time of day. */
     public LocalDate getDate() {
         return dateTime.toLocalDate();

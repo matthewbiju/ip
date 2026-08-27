@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+
 /**
  * A task that spans a stretch of time, from one date to another. Either end
  * may carry a time of day, so an event can be a meeting on one afternoon or a
@@ -28,6 +30,17 @@ public class Event extends Task {
     @Override
     public String getDetails() {
         return " (from: " + from + " to: " + to + ")";
+    }
+
+    /**
+     * An event falls on every day it covers, not just the day it starts, so a
+     * retreat running from the 18th to the 20th is found on the 19th too. Both
+     * ends count as part of the event, hence the two "not outside" tests
+     * rather than a strict comparison.
+     */
+    @Override
+    public boolean isOn(LocalDate date) {
+        return !date.isBefore(from.getDate()) && !date.isAfter(to.getDate());
     }
 
     /**

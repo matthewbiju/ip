@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+
 public class Task {
     protected String description;
     protected boolean isDone;
@@ -25,6 +27,19 @@ public class Task {
 
     public String getDetails() {
         return "";
+    }
+
+    /**
+     * Returns true if this task falls on the given day.
+     *
+     * A plain task has no date, so it never falls on any particular day and
+     * this returns false. Subclasses that do have dates override it. Asking
+     * the task itself, rather than testing its type from outside, means a new
+     * kind of task decides this for itself instead of every place that
+     * searches by date needing to learn about it.
+     */
+    public boolean isOn(LocalDate date) {
+        return false;
     }
 
     /**

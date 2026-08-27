@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -97,6 +99,33 @@ public class Rex {
                     printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
                     break;
                 }
+                case ON: {
+                    LocalDate day = parseQueryDate(argument);
+                    String dayShown = TaskDateTime.formatDate(day);
+
+                    // The matches are gathered before anything is printed, so
+                    // that a day with nothing on it can say so instead of
+                    // printing a heading followed by nothing.
+                    ArrayList<String> matchingLines = new ArrayList<>();
+                    for (int i = 0; i < tasks.size(); i++) {
+                        if (tasks.get(i).isOn(day)) {
+                            // Numbered by position in the full list, not from
+                            // 1, so that a number seen here still means the
+                            // same task to mark, unmark or delete.
+                            matchingLines.add((i + 1) + "." + taskLine(tasks.get(i)));
+                        }
+                    }
+
+                    if (matchingLines.isEmpty()) {
+                        System.out.println("Nothing on " + dayShown + " — your bowl's empty that day!");
+                    } else {
+                        System.out.println("Here's what's on " + dayShown + ":");
+                        for (String line : matchingLines) {
+                            System.out.println(line);
+                        }
+                    }
+                    break;
+                }
                 case UNKNOWN:
                 default:
                     throw new RexException("Woof? I don't know what that means :-(");
@@ -191,6 +220,23 @@ public class Rex {
             throw new RexException("Woof! I don't understand the date \"" + argument.trim()
                     + "\". Write it as yyyy-mm-dd, e.g. 2019-10-15, "
                     + "optionally with a 24-hour time, e.g. 2019-10-15 1800.");
+        }
+    }
+
+    /**
+     * Parses the day the user asked about with the on command.
+     *
+     * Unlike a task's own date this is always a whole day, so a time of day is
+     * rejected rather than quietly ignored: "what's on the 15th at 6pm" is not
+     * a question this command answers, and silently dropping the time would
+     * hide that.
+     */
+    private static LocalDate parseQueryDate(String argument) throws RexException {
+        try {
+            return LocalDate.parse(argument.trim());
+        } catch (DateTimeParseException e) {
+            throw new RexException("Woof! Tell me which day to look at, written as yyyy-mm-dd, "
+                    + "e.g. on 2019-10-15.");
         }
     }
 
