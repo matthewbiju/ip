@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -13,6 +14,7 @@ public class Rex {
         System.out.println("What can I fetch for you today?");
 
         ArrayList<Task> tasks = new ArrayList<>();
+        Storage storage = new Storage("data", "rex.txt");
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
@@ -95,6 +97,11 @@ public class Rex {
                 default:
                     throw new RexException("Woof? I don't know what that means :-(");
                 }
+                // Reached only if the command succeeded, so the list is saved
+                // exactly when it actually changed.
+                if (command.isTaskListChanged()) {
+                    saveTasks(storage, tasks);
+                }
             } catch (RexException e) {
                 System.out.println("OOPS!!! " + e.getMessage());
             }
@@ -103,6 +110,22 @@ public class Rex {
         }
         System.out.println("Bye! *wags tail* Hope to fetch for you again soon!");
         scanner.close();
+    }
+
+    /**
+     * Saves the tasks, warning the user if the save failed but letting the
+     * session carry on. A failed save is not the user's mistake, so it is not
+     * reported as a RexException (which would print "OOPS!!!" and suggest they
+     * typed something wrong), and it must not end the session: the tasks they
+     * have added are still usable in memory.
+     */
+    private static void saveTasks(Storage storage, ArrayList<Task> tasks) {
+        try {
+            storage.save(tasks);
+        } catch (IOException e) {
+            System.out.println("Ruff! I couldn't save to " + storage.getFile()
+                    + " — your tasks are safe for now, but they may not survive a restart.");
+        }
     }
 
     /** Returns the first space-separated word of the input, e.g. "todo" from "todo borrow book". */

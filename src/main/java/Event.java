@@ -17,4 +17,9 @@ public class Event extends Task {
     public String getDetails() {
         return " (from: " + from + " to: " + to + ")";
     }
+
+    @Override
+    public String toSaveFormat() {
+        return super.toSaveFormat() + " | " + from + " | " + to;
+    }
 }
