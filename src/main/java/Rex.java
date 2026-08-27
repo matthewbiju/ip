@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -71,9 +73,9 @@ public class Rex {
                     }
                     if (parts.length < 2 || parts[1].trim().isEmpty()) {
                         throw new RexException("Ruff! A deadline needs a '/by' date, "
-                                + "e.g. deadline return book /by Sunday.");
+                                + "e.g. deadline return book /by 2019-10-15.");
                     }
-                    tasks.add(new Deadline(description, parts[1].trim()));
+                    tasks.add(new Deadline(description, parseDateTime(parts[1])));
                     printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
                     break;
                 }
@@ -84,16 +86,44 @@ public class Rex {
                         throw new RexException("Ruff! The description of an event cannot be empty.");
                     }
                     if (fromParts.length < 2 || fromParts[1].trim().isEmpty()) {
-                        throw new RexException("Ruff! An event needs a '/from' time, "
-                                + "e.g. event project meeting /from Mon 2pm /to 4pm.");
+                        throw new RexException("Ruff! An event needs a '/from' time, e.g. event "
+                                + "project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.");
                     }
                     String[] toParts = fromParts[1].split(" /to ", 2);
                     if (toParts.length < 2 || toParts[1].trim().isEmpty()) {
-                        throw new RexException("Ruff! An event needs a '/to' time, "
-                                + "e.g. event project meeting /from Mon 2pm /to 4pm.");
+                        throw new RexException("Ruff! An event needs a '/to' time, e.g. event "
+                                + "project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.");
                     }
-                    tasks.add(new Event(description, toParts[0].trim(), toParts[1].trim()));
+                    tasks.add(new Event(description, parseDateTime(toParts[0]),
+                            parseDateTime(toParts[1])));
                     printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
+                    break;
+                }
+                case ON: {
+                    LocalDate day = parseQueryDate(argument);
+                    String dayShown = TaskDateTime.formatDate(day);
+
+                    // The matches are gathered before anything is printed, so
+                    // that a day with nothing on it can say so instead of
+                    // printing a heading followed by nothing.
+                    ArrayList<String> matchingLines = new ArrayList<>();
+                    for (int i = 0; i < tasks.size(); i++) {
+                        if (tasks.get(i).isOn(day)) {
+                            // Numbered by position in the full list, not from
+                            // 1, so that a number seen here still means the
+                            // same task to mark, unmark or delete.
+                            matchingLines.add((i + 1) + "." + taskLine(tasks.get(i)));
+                        }
+                    }
+
+                    if (matchingLines.isEmpty()) {
+                        System.out.println("Nothing on " + dayShown + " — your bowl's empty that day!");
+                    } else {
+                        System.out.println("Here's what's on " + dayShown + ":");
+                        for (String line : matchingLines) {
+                            System.out.println(line);
+                        }
+                    }
                     break;
                 }
                 case UNKNOWN:
@@ -172,6 +202,41 @@ public class Rex {
             return CommandType.valueOf(commandWord.toUpperCase());
         } catch (IllegalArgumentException e) {
             return CommandType.UNKNOWN;
+        }
+    }
+
+    /**
+     * Parses a date the user typed after /by, /from or /to.
+     *
+     * TaskDateTime reports a date it cannot read as an IllegalArgumentException,
+     * which would end the program. It is turned into a RexException here so that
+     * it is shown as an "OOPS!!!" message and the session carries on, the same
+     * as any other mistake in a command.
+     */
+    private static TaskDateTime parseDateTime(String argument) throws RexException {
+        try {
+            return TaskDateTime.parse(argument);
+        } catch (IllegalArgumentException e) {
+            throw new RexException("Woof! I don't understand the date \"" + argument.trim()
+                    + "\". Write it as yyyy-mm-dd, e.g. 2019-10-15, "
+                    + "optionally with a 24-hour time, e.g. 2019-10-15 1800.");
+        }
+    }
+
+    /**
+     * Parses the day the user asked about with the on command.
+     *
+     * Unlike a task's own date this is always a whole day, so a time of day is
+     * rejected rather than quietly ignored: "what's on the 15th at 6pm" is not
+     * a question this command answers, and silently dropping the time would
+     * hide that.
+     */
+    private static LocalDate parseQueryDate(String argument) throws RexException {
+        try {
+            return LocalDate.parse(argument.trim());
+        } catch (DateTimeParseException e) {
+            throw new RexException("Woof! Tell me which day to look at, written as yyyy-mm-dd, "
+                    + "e.g. on 2019-10-15.");
         }
     }
 

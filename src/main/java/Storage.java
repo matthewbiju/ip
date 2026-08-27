@@ -123,11 +123,14 @@ public class Storage {
             break;
         case "D":
             requireExactFieldCount(fields, 4);
-            task = new Deadline(description, fields[3]);
+            // TaskDateTime.parse throws IllegalArgumentException on a date it
+            // cannot read, which is what load() already skips the line for, so
+            // a damaged date needs no handling of its own here.
+            task = new Deadline(description, TaskDateTime.parse(fields[3]));
             break;
         case "E":
             requireExactFieldCount(fields, 5);
-            task = new Event(description, fields[3], fields[4]);
+            task = new Event(description, TaskDateTime.parse(fields[3]), TaskDateTime.parse(fields[4]));
             break;
         default:
             throw new IllegalArgumentException("Unknown task type: " + type);

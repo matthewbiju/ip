@@ -1,7 +1,16 @@
-public class Deadline extends Task {
-    protected String by;
+import java.time.LocalDate;
 
-    public Deadline(String description, String by) {
+/** A task that must be finished by a particular date, and optionally by a time on that date. */
+public class Deadline extends Task {
+    protected TaskDateTime by;
+
+    /**
+     * Creates a deadline.
+     *
+     * @param description what has to be done.
+     * @param by when it has to be done by.
+     */
+    public Deadline(String description, TaskDateTime by) {
         super(description);
         this.by = by;
     }
@@ -16,8 +25,19 @@ public class Deadline extends Task {
         return " (by: " + by + ")";
     }
 
+    /** A deadline falls on the day it is due, whatever time of day that is. */
+    @Override
+    public boolean isOn(LocalDate date) {
+        return by.isOn(date);
+    }
+
+    /**
+     * Note that this writes the date in its save format, not the one shown to
+     * the user: the file has to be read back, so it keeps the format that
+     * TaskDateTime.parse understands rather than the prettier display one.
+     */
     @Override
     public String toSaveFormat() {
-        return super.toSaveFormat() + " | " + by;
+        return super.toSaveFormat() + " | " + by.toSaveFormat();
     }
 }

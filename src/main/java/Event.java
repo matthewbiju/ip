@@ -1,8 +1,22 @@
-public class Event extends Task {
-    protected String from;
-    protected String to;
+import java.time.LocalDate;
 
-    public Event(String description, String from, String to) {
+/**
+ * A task that spans a stretch of time, from one date to another. Either end
+ * may carry a time of day, so an event can be a meeting on one afternoon or a
+ * trip lasting several days.
+ */
+public class Event extends Task {
+    protected TaskDateTime from;
+    protected TaskDateTime to;
+
+    /**
+     * Creates an event.
+     *
+     * @param description what is happening.
+     * @param from when it starts.
+     * @param to when it ends.
+     */
+    public Event(String description, TaskDateTime from, TaskDateTime to) {
         super(description);
         this.from = from;
         this.to = to;
@@ -18,8 +32,23 @@ public class Event extends Task {
         return " (from: " + from + " to: " + to + ")";
     }
 
+    /**
+     * An event falls on every day it covers, not just the day it starts, so a
+     * retreat running from the 18th to the 20th is found on the 19th too. Both
+     * ends count as part of the event, hence the two "not outside" tests
+     * rather than a strict comparison.
+     */
+    @Override
+    public boolean isOn(LocalDate date) {
+        return !date.isBefore(from.getDate()) && !date.isAfter(to.getDate());
+    }
+
+    /**
+     * Note that this writes both dates in their save format, not the one shown
+     * to the user, so that the line can be read back by TaskDateTime.parse.
+     */
     @Override
     public String toSaveFormat() {
-        return super.toSaveFormat() + " | " + from + " | " + to;
+        return super.toSaveFormat() + " | " + from.toSaveFormat() + " | " + to.toSaveFormat();
     }
 }
