@@ -75,8 +75,28 @@ Commit message **subject lines** follow the course's REQUIRED
   missing data file` or `bug fix: Reject a blank todo description`.
 
 Commit message **bodies** are optional for trivial commits and expected for the rest. Separate the
-body from the subject with a blank line, wrap it at 72 characters, and explain *what* changed and
-*why* — not *how*, which the diff already shows.
+body from the subject with a blank line and wrap it at 72 characters. Structure the body as the
+standard prescribes, one paragraph per part, omitting any part that has nothing to say:
+
+```
+{current situation} — use present tense
+
+{why it needs to change}
+
+{what is being done about it} — use imperative mood
+
+{why it is done that way}
+
+{any other relevant info}
+```
+
+* Describe the current situation in the **present tense** — `Rex knows the shape of every
+  command`, not `Rex knew` or `Rex still knew`.
+* Do not write `currently`, `originally`, `still` or the like: describing the situation already
+  implies it.
+* `Let's` may open the paragraph describing the change, e.g. `Let's move it into a Parser class`.
+* Explain *what* changed and *why* — not *how*, which the diff already shows.
+* Minimize repeating information already given in code comments in the same commit.
 
 Do not rewrite past commit messages: that changes commit timestamps and distorts the iP progress
 timeline seen by the course's tracking scripts.
