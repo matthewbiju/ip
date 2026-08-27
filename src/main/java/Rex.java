@@ -84,15 +84,16 @@ public class Rex {
                         throw new RexException("Ruff! The description of an event cannot be empty.");
                     }
                     if (fromParts.length < 2 || fromParts[1].trim().isEmpty()) {
-                        throw new RexException("Ruff! An event needs a '/from' time, "
-                                + "e.g. event project meeting /from Mon 2pm /to 4pm.");
+                        throw new RexException("Ruff! An event needs a '/from' time, e.g. event "
+                                + "project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.");
                     }
                     String[] toParts = fromParts[1].split(" /to ", 2);
                     if (toParts.length < 2 || toParts[1].trim().isEmpty()) {
-                        throw new RexException("Ruff! An event needs a '/to' time, "
-                                + "e.g. event project meeting /from Mon 2pm /to 4pm.");
+                        throw new RexException("Ruff! An event needs a '/to' time, e.g. event "
+                                + "project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.");
                     }
-                    tasks.add(new Event(description, toParts[0].trim(), toParts[1].trim()));
+                    tasks.add(new Event(description, parseDateTime(toParts[0]),
+                            parseDateTime(toParts[1])));
                     printAddedConfirmation(tasks.get(tasks.size() - 1), tasks.size());
                     break;
                 }

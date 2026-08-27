@@ -130,7 +130,7 @@ public class Storage {
             break;
         case "E":
             requireExactFieldCount(fields, 5);
-            task = new Event(description, fields[3], fields[4]);
+            task = new Event(description, TaskDateTime.parse(fields[3]), TaskDateTime.parse(fields[4]));
             break;
         default:
             throw new IllegalArgumentException("Unknown task type: " + type);

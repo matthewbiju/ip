@@ -66,8 +66,9 @@ Bye! *wags tail* Hope to fetch for you again soon!
 **Aim:** Verify all three task types can be added via `todo`/`deadline`/
 `event`, each with the correct type icon, confirmation message, and task
 count, and that `list` renders each type's details correctly. Also verify that
-a deadline's date is shown in display format (`MMM dd yyyy`) rather than as
-typed, both with and without a time of day.
+dates are shown in display format (`MMM dd yyyy`) rather than as typed, both
+with and without a time of day, for a deadline's `/by` and for an event's
+`/from` and `/to`.
 
 ```session
 >>> (startup)
@@ -91,16 +92,21 @@ You now have 2 tasks in your bowl!
 Got it! I've fetched this task for you:
   [D][ ] submit report (by: Oct 15 2019, 6:00PM)
 You now have 3 tasks in your bowl!
->>> event project meeting /from Mon 2pm /to 4pm
+>>> event project meeting /from 2019-10-15 1400 /to 2019-10-15 1600
 Got it! I've fetched this task for you:
-  [E][ ] project meeting (from: Mon 2pm to: 4pm)
+  [E][ ] project meeting (from: Oct 15 2019, 2:00PM to: Oct 15 2019, 4:00PM)
 You now have 4 tasks in your bowl!
+>>> event team retreat /from 2019-10-18 /to 2019-10-20
+Got it! I've fetched this task for you:
+  [E][ ] team retreat (from: Oct 18 2019 to: Oct 20 2019)
+You now have 5 tasks in your bowl!
 >>> list
 Here's what's in your bowl:
 1.[T][ ] borrow book
 2.[D][ ] return book (by: Oct 15 2019)
 3.[D][ ] submit report (by: Oct 15 2019, 6:00PM)
-4.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+4.[E][ ] project meeting (from: Oct 15 2019, 2:00PM to: Oct 15 2019, 4:00PM)
+5.[E][ ] team retreat (from: Oct 18 2019 to: Oct 20 2019)
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
@@ -170,6 +176,12 @@ OOPS!!! Ruff! A deadline needs a '/by' date, e.g. deadline return book /by 2019-
 OOPS!!! Woof! I don't understand the date "Sunday". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
 >>> deadline return book /by 15/10/2019
 OOPS!!! Woof! I don't understand the date "15/10/2019". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
+>>> event project meeting /from 2019-10-15 1400
+OOPS!!! Ruff! An event needs a '/to' time, e.g. event project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.
+>>> event project meeting /from Monday /to 2019-10-15 1600
+OOPS!!! Woof! I don't understand the date "Monday". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
+>>> event project meeting /from 2019-10-15 1400 /to whenever
+OOPS!!! Woof! I don't understand the date "whenever". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
 >>> mark abc
 OOPS!!! Woof! "abc" isn't a valid task number.
 >>> mark 99
@@ -229,9 +241,10 @@ Bye! *wags tail* Hope to fetch for you again soon!
 **Aim:** Verify that tasks added in one session are still present, with their
 done/not-done state and type-specific details intact, when the program is
 started again. Also verify that a deletion is persisted, i.e. the restarted
-session does not bring a deleted task back, and that a deadline's date
-survives the round trip through the file unchanged — including whether a time
-of day was given, which is written to the file and must be read back.
+session does not bring a deleted task back, and that dates survive the round
+trip through the file unchanged — including whether a time of day was given,
+which is written to the file and must be read back. Covers a deadline's `/by`
+and both ends of an event.
 
 ```session
 >>> (startup)
@@ -251,9 +264,9 @@ You now have 1 tasks in your bowl!
 Got it! I've fetched this task for you:
   [D][ ] return book (by: Oct 15 2019)
 You now have 2 tasks in your bowl!
->>> event project meeting /from Mon 2pm /to 4pm
+>>> event team retreat /from 2019-10-18 /to 2019-10-20
 Got it! I've fetched this task for you:
-  [E][ ] project meeting (from: Mon 2pm to: 4pm)
+  [E][ ] team retreat (from: Oct 18 2019 to: Oct 20 2019)
 You now have 3 tasks in your bowl!
 >>> deadline submit report /by 2019-10-15 1800
 Got it! I've fetched this task for you:
@@ -283,7 +296,7 @@ What can I fetch for you today?
 Here's what's in your bowl:
 1.[T][X] read book
 2.[D][ ] return book (by: Oct 15 2019)
-3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+3.[E][ ] team retreat (from: Oct 18 2019 to: Oct 20 2019)
 4.[D][ ] submit report (by: Oct 15 2019, 6:00PM)
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
