@@ -1,18 +1,11 @@
 /**
  * The set of recognized command words. UNKNOWN represents any input word
  * that doesn't match one of the others (i.e. an unrecognized command).
+ *
+ * This names what the user typed, and nothing more. What a command does, and
+ * whether doing it changes the task list, belongs to the Command classes; the
+ * parser uses this only to decide which one of them to build.
  */
 public enum CommandType {
-    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, ON, BYE, UNKNOWN;
-
-    /**
-     * Returns true if this command changes the task list, and so requires the
-     * tasks to be saved afterwards. Keeping this here means the answer lives
-     * with the commands themselves, instead of being repeated at every place
-     * that changes the list.
-     */
-    public boolean isTaskListChanged() {
-        return this == MARK || this == UNMARK || this == DELETE
-                || this == TODO || this == DEADLINE || this == EVENT;
-    }
+    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, ON, BYE, UNKNOWN
 }
