@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.time.LocalDate;
 
 /**
  * A task-tracking chatbot that reads commands from the console.
@@ -39,81 +38,24 @@ public class Rex {
         tasks = loadTasks();
         ui.showReady();
 
-        String input = ui.readCommand();
-        CommandType command = Parser.parseCommandType(input);
-        while (command != CommandType.BYE) {
+        boolean isExit = false;
+        while (!isExit) {
             try {
-                execute(command, Parser.parseArgument(input));
+                Command command = Parser.parse(ui.readCommand());
+                command.execute(tasks, ui);
 
                 // Reached only if the command succeeded, so the list is saved
                 // exactly when it actually changed.
                 if (command.isTaskListChanged()) {
                     saveTasks();
                 }
+                isExit = command.isExit();
             } catch (RexException e) {
                 ui.showError(e.getMessage());
             }
-            input = ui.readCommand();
-            command = Parser.parseCommandType(input);
         }
 
-        ui.showFarewell();
         ui.close();
-    }
-
-    /**
-     * Carries out one command.
-     *
-     * @param command which command was given.
-     * @param argument everything the user typed after the command word.
-     * @throws RexException if the argument is not one the command accepts.
-     */
-    private void execute(CommandType command, String argument) throws RexException {
-        switch (command) {
-        case LIST:
-            ui.showTaskList(tasks);
-            break;
-        case MARK: {
-            Task task = tasks.getByNumber(Parser.parseTaskNumber(argument));
-            task.markAsDone();
-            ui.showMarked(task);
-            break;
-        }
-        case UNMARK: {
-            Task task = tasks.getByNumber(Parser.parseTaskNumber(argument));
-            task.markAsNotDone();
-            ui.showUnmarked(task);
-            break;
-        }
-        case DELETE: {
-            Task removed = tasks.deleteByNumber(Parser.parseTaskNumber(argument));
-            ui.showRemoved(removed, tasks.size());
-            break;
-        }
-        case TODO:
-            addTask(Parser.parseTodo(argument));
-            break;
-        case DEADLINE:
-            addTask(Parser.parseDeadline(argument));
-            break;
-        case EVENT:
-            addTask(Parser.parseEvent(argument));
-            break;
-        case ON: {
-            LocalDate day = Parser.parseQueryDate(argument);
-            ui.showTasksOn(TaskDateTime.formatDate(day), tasks, tasks.findIndicesOn(day));
-            break;
-        }
-        case UNKNOWN:
-        default:
-            throw new RexException("Woof? I don't know what that means :-(");
-        }
-    }
-
-    /** Adds a task and confirms it, which is the same for all three task types. */
-    private void addTask(Task task) {
-        tasks.add(task);
-        ui.showAdded(task, tasks.size());
     }
 
     /**

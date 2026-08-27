@@ -15,6 +15,45 @@ import java.time.format.DateTimeParseException;
  */
 public class Parser {
     /**
+     * Turns a line the user typed into the command it asks for.
+     *
+     * Note that the command is only built here, not carried out: nothing in
+     * this class looks at the task list, so a command that names a task by
+     * number keeps the number and checks it when it runs.
+     *
+     * @param input the whole line the user typed.
+     * @return the command it asks for, ready to be run.
+     * @throws RexException if the line names a command but describes it
+     *     wrongly, e.g. a deadline with no date.
+     */
+    public static Command parse(String input) throws RexException {
+        String argument = parseArgument(input);
+        switch (parseCommandType(input)) {
+        case LIST:
+            return new ListCommand();
+        case MARK:
+            return new MarkCommand(parseTaskNumber(argument));
+        case UNMARK:
+            return new UnmarkCommand(parseTaskNumber(argument));
+        case DELETE:
+            return new DeleteCommand(parseTaskNumber(argument));
+        case TODO:
+            return new AddCommand(parseTodo(argument));
+        case DEADLINE:
+            return new AddCommand(parseDeadline(argument));
+        case EVENT:
+            return new AddCommand(parseEvent(argument));
+        case ON:
+            return new OnCommand(parseQueryDate(argument));
+        case BYE:
+            return new ExitCommand();
+        case UNKNOWN:
+        default:
+            return new UnknownCommand();
+        }
+    }
+
+    /**
      * Returns which command the input names, or UNKNOWN if it names none.
      *
      * @param input the whole line the user typed.
