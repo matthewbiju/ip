@@ -11,10 +11,13 @@ public class Rex {
                 + "|_| \\_\\_____/_/\\_\\\n";
         System.out.println(banner);
         System.out.println("Woof woof! I'm Rex, your task-fetching sidekick!");
-        System.out.println("What can I fetch for you today?");
 
-        ArrayList<Task> tasks = new ArrayList<>();
+        // Loaded between the two greeting lines so that anything the load has
+        // to report appears before the user is invited to type a command.
         Storage storage = new Storage("data", "rex.txt");
+        ArrayList<Task> tasks = loadTasks(storage);
+
+        System.out.println("What can I fetch for you today?");
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
@@ -110,6 +113,21 @@ public class Rex {
         }
         System.out.println("Bye! *wags tail* Hope to fetch for you again soon!");
         scanner.close();
+    }
+
+    /**
+     * Loads the saved tasks, starting with an empty list if they could not be
+     * read. Refusing to start would leave the user with no way to use the
+     * program at all, which is worse than starting fresh.
+     */
+    private static ArrayList<Task> loadTasks(Storage storage) {
+        try {
+            return storage.load();
+        } catch (IOException e) {
+            System.out.println("Ruff! I couldn't read " + storage.getFile()
+                    + " — starting with an empty list.");
+            return new ArrayList<>();
+        }
     }
 
     /**

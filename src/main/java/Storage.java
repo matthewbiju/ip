@@ -49,6 +49,61 @@ public class Storage {
         Files.write(file, lines);
     }
 
+    /**
+     * Reads the saved tasks back from the file, in the order they were saved.
+     *
+     * A missing file (or missing folder) is not an error: it simply means
+     * nothing has been saved yet, which is the normal state on a first run,
+     * so an empty list is returned.
+     *
+     * @return the saved tasks, or an empty list if there is no save file yet.
+     * @throws IOException if the file exists but could not be read.
+     */
+    public ArrayList<Task> load() throws IOException {
+        ArrayList<Task> tasks = new ArrayList<>();
+        if (!Files.exists(file)) {
+            return tasks;
+        }
+
+        for (String line : Files.readAllLines(file)) {
+            tasks.add(parseTask(line));
+        }
+        return tasks;
+    }
+
+    /**
+     * Rebuilds one task from a line of the save file.
+     *
+     * Unlike writing, this cannot be left to the task classes themselves:
+     * there is no task object yet to ask, so the type letter has to be
+     * examined here to decide which kind of task to create.
+     */
+    private static Task parseTask(String line) {
+        String[] fields = line.split(" \\| ");
+        String type = fields[0];
+        String description = fields[2];
+
+        Task task;
+        switch (type) {
+        case "T":
+            task = new ToDo(description);
+            break;
+        case "D":
+            task = new Deadline(description, fields[3]);
+            break;
+        case "E":
+            task = new Event(description, fields[3], fields[4]);
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown task type: " + type);
+        }
+
+        if (fields[1].equals("1")) {
+            task.markAsDone();
+        }
+        return task;
+    }
+
     /** Returns the path of the save file, for use in messages to the user. */
     public Path getFile() {
         return file;
