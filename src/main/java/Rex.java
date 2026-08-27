@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -10,9 +11,13 @@ public class Rex {
                 + "|_| \\_\\_____/_/\\_\\\n";
         System.out.println(banner);
         System.out.println("Woof woof! I'm Rex, your task-fetching sidekick!");
-        System.out.println("What can I fetch for you today?");
 
-        ArrayList<Task> tasks = new ArrayList<>();
+        // Loaded between the two greeting lines so that anything the load has
+        // to report appears before the user is invited to type a command.
+        Storage storage = new Storage("data", "rex.txt");
+        ArrayList<Task> tasks = loadTasks(storage);
+
+        System.out.println("What can I fetch for you today?");
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
@@ -95,6 +100,11 @@ public class Rex {
                 default:
                     throw new RexException("Woof? I don't know what that means :-(");
                 }
+                // Reached only if the command succeeded, so the list is saved
+                // exactly when it actually changed.
+                if (command.isTaskListChanged()) {
+                    saveTasks(storage, tasks);
+                }
             } catch (RexException e) {
                 System.out.println("OOPS!!! " + e.getMessage());
             }
@@ -103,6 +113,45 @@ public class Rex {
         }
         System.out.println("Bye! *wags tail* Hope to fetch for you again soon!");
         scanner.close();
+    }
+
+    /**
+     * Loads the saved tasks, starting with an empty list if they could not be
+     * read. Refusing to start would leave the user with no way to use the
+     * program at all, which is worse than starting fresh.
+     */
+    private static ArrayList<Task> loadTasks(Storage storage) {
+        try {
+            ArrayList<Task> tasks = storage.load();
+            int skipped = storage.getSkippedLineCount();
+            if (skipped > 0) {
+                // Reported once with a count, so that a badly damaged file
+                // does not bury the greeting under one message per line.
+                System.out.println("Ruff! I couldn't read " + skipped + " line(s) in "
+                        + storage.getFile() + ", so I've skipped them.");
+            }
+            return tasks;
+        } catch (IOException e) {
+            System.out.println("Ruff! I couldn't read " + storage.getFile()
+                    + " — starting with an empty list.");
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Saves the tasks, warning the user if the save failed but letting the
+     * session carry on. A failed save is not the user's mistake, so it is not
+     * reported as a RexException (which would print "OOPS!!!" and suggest they
+     * typed something wrong), and it must not end the session: the tasks they
+     * have added are still usable in memory.
+     */
+    private static void saveTasks(Storage storage, ArrayList<Task> tasks) {
+        try {
+            storage.save(tasks);
+        } catch (IOException e) {
+            System.out.println("Ruff! I couldn't save to " + storage.getFile()
+                    + " — your tasks are safe for now, but they may not survive a restart.");
+        }
     }
 
     /** Returns the first space-separated word of the input, e.g. "todo" from "todo borrow book". */
