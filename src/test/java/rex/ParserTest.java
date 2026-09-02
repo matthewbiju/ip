@@ -148,6 +148,23 @@ public class ParserTest {
         assertThrows(RexException.class, () -> Parser.parseTaskNumber(""));
     }
 
+    @Test
+    void parseKeyword_singleWord_returnsKeyword() throws RexException {
+        assertEquals("book", Parser.parseKeyword("book"));
+    }
+
+    @Test
+    void parseKeyword_severalWords_keptAsOnePhrase() throws RexException {
+        // Splitting here would turn a search for one phrase into a search for
+        // any of its words, which finds far more than was asked for.
+        assertEquals("return book", Parser.parseKeyword("  return book  "));
+    }
+
+    @Test
+    void parseKeyword_nothingGiven_exceptionThrown() {
+        assertThrows(RexException.class, () -> Parser.parseKeyword("   "));
+    }
+
     /** Reads a task number, turning a refusal into a test failure. */
     private static int assertDoesNotThrowNumber(String argument) {
         try {

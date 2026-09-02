@@ -7,6 +7,7 @@ import rex.command.Command;
 import rex.command.CommandType;
 import rex.command.DeleteCommand;
 import rex.command.ExitCommand;
+import rex.command.FindCommand;
 import rex.command.ListCommand;
 import rex.command.MarkCommand;
 import rex.command.OnCommand;
@@ -61,6 +62,8 @@ public class Parser {
             return new AddCommand(parseEvent(argument));
         case ON:
             return new OnCommand(parseQueryDate(argument));
+        case FIND:
+            return new FindCommand(parseKeyword(argument));
         case BYE:
             return new ExitCommand();
         case UNKNOWN:
@@ -194,6 +197,23 @@ public class Parser {
             throw new RexException("Woof! Tell me which day to look at, written as yyyy-mm-dd, "
                     + "e.g. on 2019-10-15.");
         }
+    }
+
+    /**
+     * Reads the keyword the user asked to search for.
+     *
+     * The keyword is taken whole rather than split into words, so that
+     * "find return book" looks for that phrase instead of for either word.
+     *
+     * @param argument everything after the word "find".
+     * @throws RexException if no keyword was given.
+     */
+    public static String parseKeyword(String argument) throws RexException {
+        String keyword = argument.trim();
+        if (keyword.isEmpty()) {
+            throw new RexException("Woof! Tell me what to sniff out, e.g. find book.");
+        }
+        return keyword;
     }
 
     /** Returns the first space-separated word, e.g. "todo" from "todo borrow book". */

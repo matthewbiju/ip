@@ -477,3 +477,72 @@ OOPS!!! Woof! Tell me which day to look at, written as yyyy-mm-dd, e.g. on 2019-
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
+
+### TC11: Find the tasks matching a keyword
+
+**Aim:** Verify `find` lists only the tasks whose description contains the
+keyword. Covers matching without regard to case, matching part of a word as
+well as a whole one, searching for a phrase of more than one word, a keyword
+nothing matches reporting that instead of an empty heading, and `find` with no
+keyword being refused. Also verify that matches keep their number from the full
+list rather than being renumbered from 1, so that a number shown by `find` still
+names the same task for `mark` and `delete`, and that a task's done mark is
+shown as it currently stands.
+
+```session
+>>> (startup)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> todo read book
+Got it! I've fetched this task for you:
+  [T][ ] read book
+You now have 1 tasks in your bowl!
+>>> deadline return book /by 2019-10-15
+Got it! I've fetched this task for you:
+  [D][ ] return book (by: Oct 15 2019)
+You now have 2 tasks in your bowl!
+>>> event bookshop trip /from 2019-10-18 /to 2019-10-20
+Got it! I've fetched this task for you:
+  [E][ ] bookshop trip (from: Oct 18 2019 to: Oct 20 2019)
+You now have 3 tasks in your bowl!
+>>> todo buy milk
+Got it! I've fetched this task for you:
+  [T][ ] buy milk
+You now have 4 tasks in your bowl!
+>>> find book
+Here's what matches "book":
+1.[T][ ] read book
+2.[D][ ] return book (by: Oct 15 2019)
+3.[E][ ] bookshop trip (from: Oct 18 2019 to: Oct 20 2019)
+>>> find BOOK
+Here's what matches "BOOK":
+1.[T][ ] read book
+2.[D][ ] return book (by: Oct 15 2019)
+3.[E][ ] bookshop trip (from: Oct 18 2019 to: Oct 20 2019)
+>>> find return book
+Here's what matches "return book":
+2.[D][ ] return book (by: Oct 15 2019)
+>>> find milk
+Here's what matches "milk":
+4.[T][ ] buy milk
+>>> find zzz
+No sign of "zzz" in your bowl!
+>>> find
+OOPS!!! Woof! Tell me what to sniff out, e.g. find book.
+>>> mark 2
+Nice catch! I've marked this task as done:
+  [D][X] return book (by: Oct 15 2019)
+>>> find book
+Here's what matches "book":
+1.[T][ ] read book
+2.[D][X] return book (by: Oct 15 2019)
+3.[E][ ] bookshop trip (from: Oct 18 2019 to: Oct 20 2019)
+>>> bye
+Bye! *wags tail* Hope to fetch for you again soon!
+```
