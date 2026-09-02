@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 /** A task that must be finished by a particular date, and optionally by a time on that date. */
 public class Deadline extends Task {
-    protected TaskDateTime by;
+    private final TaskDateTime by;
 
     /**
      * Creates a deadline.

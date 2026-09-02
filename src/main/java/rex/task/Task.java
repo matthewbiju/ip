@@ -3,8 +3,8 @@ package rex.task;
 import java.time.LocalDate;
 
 public class Task {
-    protected String description;
-    protected boolean isDone;
+    private String description;
+    private boolean isDone;
 
     public Task(String description) {
         this.description = description;
@@ -26,10 +26,10 @@ public class Task {
     /**
      * Returns what the task says, e.g. "return book".
      *
-     * The field itself is protected, which lets subclasses use it but not
-     * anything else once the classes sit in different packages. Whoever
-     * displays a task needs the description, so it is offered here rather
-     * than by widening the field.
+     * The field itself is private, so this is the only way to read it. No
+     * subclass needs it either: each one adds its own fields and leaves the
+     * description to the parent, which is why it need not be widened to
+     * protected.
      */
     public String getDescription() {
         return description;
@@ -66,7 +66,6 @@ public class Task {
      * that this is left unhandled rather than escaped.
      */
     public String toSaveFormat() {
-
         return getTypeIcon() + " | " + (isDone ? "1" : "0") + " | " + description;
     }
 }

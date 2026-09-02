@@ -8,8 +8,8 @@ import java.time.LocalDate;
  * trip lasting several days.
  */
 public class Event extends Task {
-    protected TaskDateTime from;
-    protected TaskDateTime to;
+    private final TaskDateTime from;
+    private final TaskDateTime to;
 
     /**
      * Creates an event.
