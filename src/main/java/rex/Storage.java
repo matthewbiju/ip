@@ -33,7 +33,6 @@ public class Storage {
      *     separator such as "/" or "\".
      */
     public Storage(String first, String... more) {
-
         this.file = Paths.get(first, more);
     }
 
