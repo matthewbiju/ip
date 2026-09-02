@@ -18,6 +18,11 @@ public class MarkCommand extends Command {
         this.taskNumber = taskNumber;
     }
 
+    /**
+     * Marks the numbered task as done and shows it back.
+     *
+     * @throws RexException if no task has that number.
+     */
     @Override
     public void execute(TaskList tasks, Ui ui) throws RexException {
         Task task = tasks.getByNumber(taskNumber);
@@ -25,6 +30,7 @@ public class MarkCommand extends Command {
         ui.showMarked(task);
     }
 
+    /** Returns true: whether a task is done is part of what gets saved. */
     @Override
     public boolean isTaskListChanged() {
         return true;

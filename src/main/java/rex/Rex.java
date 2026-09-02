@@ -31,6 +31,13 @@ public class Rex {
         this.storage = new Storage(first, more);
     }
 
+    /**
+     * Starts the chatbot, keeping its tasks in data/rex.txt beside wherever
+     * the program was run from.
+     *
+     * @param args not used; the save file is fixed rather than taken from the
+     *     command line, so that the program is started the same way every time.
+     */
     public static void main(String[] args) {
         new Rex("data", "rex.txt").run();
     }

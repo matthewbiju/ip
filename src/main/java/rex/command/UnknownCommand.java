@@ -12,6 +12,11 @@ import rex.Ui;
  * whatever the user typed and never has to handle "no command at all".
  */
 public class UnknownCommand extends Command {
+    /**
+     * Always refuses.
+     *
+     * @throws RexException every time, carrying the message shown to the user.
+     */
     @Override
     public void execute(TaskList tasks, Ui ui) throws RexException {
         throw new RexException("Woof? I don't know what that means :-(");
