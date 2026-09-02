@@ -122,7 +122,34 @@ public class Ui {
         }
 
         System.out.println("Here's what's on " + dayShown + ":");
-        for (int index : matchingIndices) {
+        showNumbered(tasks, matchingIndices);
+    }
+
+    /**
+     * Shows the tasks whose description matched a search, or says that none
+     * did.
+     *
+     * As in showTasksOn, each task keeps its number from the full list, so a
+     * number seen here still names the same task for mark, unmark and delete.
+     *
+     * @param keyword what was searched for, shown back so that the user can
+     *     see what the answer belongs to.
+     * @param tasks every task the user has.
+     * @param matchingIndices the positions, counting from 0, of the ones to show.
+     */
+    public void showMatchingTasks(String keyword, TaskList tasks, List<Integer> matchingIndices) {
+        if (matchingIndices.isEmpty()) {
+            System.out.println("No sign of \"" + keyword + "\" in your bowl!");
+            return;
+        }
+
+        System.out.println("Here's what matches \"" + keyword + "\":");
+        showNumbered(tasks, matchingIndices);
+    }
+
+    /** Prints the tasks at the given positions, each with its number in the full list. */
+    private void showNumbered(TaskList tasks, List<Integer> indices) {
+        for (int index : indices) {
             System.out.println(numberedTask(index + 1, tasks.get(index)));
         }
     }

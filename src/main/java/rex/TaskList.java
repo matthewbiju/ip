@@ -111,6 +111,29 @@ public class TaskList {
     }
 
     /**
+     * Returns the positions of the tasks whose description contains the given
+     * keyword, ignoring case, in list order.
+     *
+     * Any part of a description counts, not only whole words, so "book" finds
+     * "bookshop" as well as "read book". Positions are returned rather than
+     * the tasks themselves for the same reason as in findIndicesOn: the user
+     * knows each task by its number in the whole list.
+     *
+     * @param keyword the text to look for.
+     * @return the positions, counting from 0, of every task containing it.
+     */
+    public List<Integer> findIndicesMatching(String keyword) {
+        String lowercaseKeyword = keyword.toLowerCase();
+        List<Integer> matchingIndices = new ArrayList<>();
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).getDescription().toLowerCase().contains(lowercaseKeyword)) {
+                matchingIndices.add(i);
+            }
+        }
+        return matchingIndices;
+    }
+
+    /**
      * Returns the tasks themselves, for saving to disk.
      *
      * The list is wrapped so that it cannot be changed through what is handed
