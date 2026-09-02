@@ -17,12 +17,14 @@ public class AddCommand extends Command {
         this.task = task;
     }
 
+    /** Adds the task to the list and confirms it, giving the new total. */
     @Override
     public void execute(TaskList tasks, Ui ui) {
         tasks.add(task);
         ui.showAdded(task, tasks.size());
     }
 
+    /** Returns true: adding a task always changes the list. */
     @Override
     public boolean isTaskListChanged() {
         return true;

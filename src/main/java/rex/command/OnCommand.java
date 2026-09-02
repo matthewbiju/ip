@@ -18,6 +18,10 @@ public class OnCommand extends Command {
         this.day = day;
     }
 
+    /**
+     * Shows the tasks falling on the day, each keeping the number it has in
+     * the full list so that it can still be marked or deleted by that number.
+     */
     @Override
     public void execute(TaskList tasks, Ui ui) {
         ui.showTasksOn(TaskDateTime.formatDate(day), tasks, tasks.findIndicesOn(day));

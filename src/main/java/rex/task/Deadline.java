@@ -17,11 +17,13 @@ public class Deadline extends Task {
         this.by = by;
     }
 
+    /** Returns "D", the letter marking a deadline in a listed or saved task. */
     @Override
     public String getTypeIcon() {
         return "D";
     }
 
+    /** Returns the due date in brackets, e.g. " (by: Oct 15 2019)". */
     @Override
     public String getDetails() {
         return " (by: " + by + ")";

@@ -20,12 +20,19 @@ public class DeleteCommand extends Command {
         this.taskNumber = taskNumber;
     }
 
+    /**
+     * Removes the numbered task and shows which one went, with the number
+     * of tasks left.
+     *
+     * @throws RexException if no task has that number.
+     */
     @Override
     public void execute(TaskList tasks, Ui ui) throws RexException {
         Task removed = tasks.deleteByNumber(taskNumber);
         ui.showRemoved(removed, tasks.size());
     }
 
+    /** Returns true: removing a task always changes the list. */
     @Override
     public boolean isTaskListChanged() {
         return true;

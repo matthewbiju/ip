@@ -24,11 +24,13 @@ public class Event extends Task {
         this.to = to;
     }
 
+    /** Returns "E", the letter marking an event in a listed or saved task. */
     @Override
     public String getTypeIcon() {
         return "E";
     }
 
+    /** Returns both ends in brackets, e.g. " (from: Oct 15 2019 to: Oct 16 2019)". */
     @Override
     public String getDetails() {
         return " (from: " + from + " to: " + to + ")";
