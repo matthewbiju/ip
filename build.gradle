@@ -15,6 +15,24 @@ repositories {
 
 dependencies {
     String jUnitVersion = '5.14.4'
+    String javaFxVersion = '17.0.7'
+
+    // Every JavaFX artifact is declared once per platform. Gradle picks the one
+    // matching the machine it runs on, so the shaded JAR carries all three and
+    // therefore runs on Windows, macOS and Linux rather than only on the
+    // machine that built it.
+    implementation("org.openjfx:javafx-base:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-base:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-base:${javaFxVersion}:linux")
+    implementation("org.openjfx:javafx-controls:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-controls:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-controls:${javaFxVersion}:linux")
+    implementation("org.openjfx:javafx-fxml:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-fxml:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-fxml:${javaFxVersion}:linux")
+    implementation("org.openjfx:javafx-graphics:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-graphics:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-graphics:${javaFxVersion}:linux")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
 
@@ -37,7 +55,10 @@ test {
 }
 
 application {
-    mainClass = 'rex.Rex'
+    // Launcher rather than Main: launching a class that extends Application
+    // directly fails when the JavaFX classes come from the classpath, which is
+    // how the shaded JAR ships them.
+    mainClass = 'rex.gui.Launcher'
 }
 
 jar {
