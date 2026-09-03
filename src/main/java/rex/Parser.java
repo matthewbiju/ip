@@ -2,6 +2,7 @@ package rex;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+
 import rex.command.AddCommand;
 import rex.command.Command;
 import rex.command.CommandType;
@@ -46,29 +47,29 @@ public class Parser {
     public static Command parse(String input) throws RexException {
         String argument = parseArgument(input);
         switch (parseCommandType(input)) {
-        case LIST:
-            return new ListCommand();
-        case MARK:
-            return new MarkCommand(parseTaskNumber(argument));
-        case UNMARK:
-            return new UnmarkCommand(parseTaskNumber(argument));
-        case DELETE:
-            return new DeleteCommand(parseTaskNumber(argument));
-        case TODO:
-            return new AddCommand(parseTodo(argument));
-        case DEADLINE:
-            return new AddCommand(parseDeadline(argument));
-        case EVENT:
-            return new AddCommand(parseEvent(argument));
-        case ON:
-            return new OnCommand(parseQueryDate(argument));
-        case FIND:
-            return new FindCommand(parseKeyword(argument));
-        case BYE:
-            return new ExitCommand();
-        case UNKNOWN:
-        default:
-            return new UnknownCommand();
+            case LIST:
+                return new ListCommand();
+            case MARK:
+                return new MarkCommand(parseTaskNumber(argument));
+            case UNMARK:
+                return new UnmarkCommand(parseTaskNumber(argument));
+            case DELETE:
+                return new DeleteCommand(parseTaskNumber(argument));
+            case TODO:
+                return new AddCommand(parseTodo(argument));
+            case DEADLINE:
+                return new AddCommand(parseDeadline(argument));
+            case EVENT:
+                return new AddCommand(parseEvent(argument));
+            case ON:
+                return new OnCommand(parseQueryDate(argument));
+            case FIND:
+                return new FindCommand(parseKeyword(argument));
+            case BYE:
+                return new ExitCommand();
+            case UNKNOWN:
+            default:
+                return new UnknownCommand();
         }
     }
 

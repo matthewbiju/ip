@@ -44,8 +44,7 @@ public class ParserTest {
 
     @Test
     void parseDeadline_missingBy_askedForABy() {
-        RexException thrown = assertThrows(RexException.class,
-                () -> Parser.parseDeadline("return book"));
+        RexException thrown = assertThrows(RexException.class, () -> Parser.parseDeadline("return book"));
 
         assertTrue(thrown.getMessage().contains("/by"), thrown.getMessage());
     }
@@ -55,8 +54,7 @@ public class ParserTest {
         // The message matters as much as the refusal here. A "/by" with nothing
         // after it splits into an empty date, which would otherwise be reported
         // as an unreadable date rather than as a missing one.
-        RexException thrown = assertThrows(RexException.class,
-                () -> Parser.parseDeadline("return book /by "));
+        RexException thrown = assertThrows(RexException.class, () -> Parser.parseDeadline("return book /by "));
 
         assertTrue(thrown.getMessage().contains("/by"), thrown.getMessage());
     }
@@ -92,26 +90,22 @@ public class ParserTest {
 
     @Test
     void parseEvent_missingFrom_exceptionThrown() {
-        assertThrows(RexException.class,
-                () -> Parser.parseEvent("project meeting /to 2019-10-15 1600"));
+        assertThrows(RexException.class, () -> Parser.parseEvent("project meeting /to 2019-10-15 1600"));
     }
 
     @Test
     void parseEvent_missingTo_exceptionThrown() {
-        assertThrows(RexException.class,
-                () -> Parser.parseEvent("project meeting /from 2019-10-15 1400"));
+        assertThrows(RexException.class, () -> Parser.parseEvent("project meeting /from 2019-10-15 1400"));
     }
 
     @Test
     void parseEvent_emptyDescription_exceptionThrown() {
-        assertThrows(RexException.class,
-                () -> Parser.parseEvent(" /from 2019-10-15 1400 /to 2019-10-15 1600"));
+        assertThrows(RexException.class, () -> Parser.parseEvent(" /from 2019-10-15 1400 /to 2019-10-15 1600"));
     }
 
     @Test
     void parseEvent_unreadableStartDate_exceptionThrown() {
-        assertThrows(RexException.class,
-                () -> Parser.parseEvent("meeting /from someday /to 2019-10-15 1600"));
+        assertThrows(RexException.class, () -> Parser.parseEvent("meeting /from someday /to 2019-10-15 1600"));
     }
 
     @Test
