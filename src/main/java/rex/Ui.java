@@ -22,9 +22,39 @@ public class Ui {
 
     private final Scanner scanner;
 
+    /**
+     * Where output is collected while the GUI is being served, or null when
+     * output goes straight to the screen as it does for the console.
+     */
+    private StringBuilder captured;
+
     /** Creates a Ui that reads the user's commands from the keyboard. */
     public Ui() {
         this.scanner = new Scanner(System.in);
+    }
+
+    /**
+     * Starts collecting output instead of printing it.
+     *
+     * The GUI shows a whole reply at once in a dialog box rather than a line
+     * at a time, so it collects what the console would have printed and takes
+     * it back as one string. Every show method below is unaffected: they all
+     * call show(), which decides where the line goes.
+     */
+    public void startCapture() {
+        captured = new StringBuilder();
+    }
+
+    /**
+     * Returns everything collected since startCapture(), and goes back to
+     * printing.
+     *
+     * @return the collected output, without a trailing newline.
+     */
+    public String takeCapture() {
+        String collected = captured.toString().stripTrailing();
+        captured = null;
+        return collected;
     }
 
     /**
@@ -35,13 +65,13 @@ public class Ui {
      * between the greeting and that invitation, so showReady() is separate.
      */
     public void showWelcome() {
-        System.out.println(BANNER);
-        System.out.println("Woof woof! I'm Rex, your task-fetching sidekick!");
+        show(BANNER);
+        show("Woof woof! I'm Rex, your task-fetching sidekick!");
     }
 
     /** Invites the user to type their first command. */
     public void showReady() {
-        System.out.println("What can I fetch for you today?");
+        show("What can I fetch for you today?");
     }
 
     /** Reads one line of input from the user. */
@@ -56,7 +86,7 @@ public class Ui {
 
     /** Says goodbye as the program exits. */
     public void showFarewell() {
-        System.out.println("Bye! *wags tail* Hope to fetch for you again soon!");
+        show("Bye! *wags tail* Hope to fetch for you again soon!");
     }
 
     /**
@@ -66,40 +96,40 @@ public class Ui {
      *     from the RexException that was thrown.
      */
     public void showError(String message) {
-        System.out.println("OOPS!!! " + message);
+        show("OOPS!!! " + message);
     }
 
     /** Confirms that a task was added, and says how many there are now. */
     public void showAdded(Task task, int taskCount) {
-        System.out.println("Got it! I've fetched this task for you:");
-        System.out.println("  " + formatTask(task));
-        System.out.println("You now have " + taskCount + " tasks in your bowl!");
+        show("Got it! I've fetched this task for you:");
+        show("  " + formatTask(task));
+        show("You now have " + taskCount + " tasks in your bowl!");
     }
 
     /** Confirms that a task is now done. */
     public void showMarked(Task task) {
-        System.out.println("Nice catch! I've marked this task as done:");
-        System.out.println("  " + formatTask(task));
+        show("Nice catch! I've marked this task as done:");
+        show("  " + formatTask(task));
     }
 
     /** Confirms that a task is no longer done. */
     public void showUnmarked(Task task) {
-        System.out.println("Okay, putting this one back in the yard — not done yet:");
-        System.out.println("  " + formatTask(task));
+        show("Okay, putting this one back in the yard — not done yet:");
+        show("  " + formatTask(task));
     }
 
     /** Confirms that a task was removed, and says how many are left. */
     public void showRemoved(Task task, int remainingCount) {
-        System.out.println("Gotcha! I've removed this task from your bowl:");
-        System.out.println("  " + formatTask(task));
-        System.out.println("You now have " + remainingCount + " tasks in your bowl!");
+        show("Gotcha! I've removed this task from your bowl:");
+        show("  " + formatTask(task));
+        show("You now have " + remainingCount + " tasks in your bowl!");
     }
 
     /** Shows every task, numbered from 1. */
     public void showTaskList(TaskList tasks) {
-        System.out.println("Here's what's in your bowl:");
+        show("Here's what's in your bowl:");
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println(numberedTask(i + 1, tasks.get(i)));
+            show(numberedTask(i + 1, tasks.get(i)));
         }
     }
 
@@ -117,11 +147,11 @@ public class Ui {
      */
     public void showTasksOn(String dayShown, TaskList tasks, List<Integer> matchingIndices) {
         if (matchingIndices.isEmpty()) {
-            System.out.println("Nothing on " + dayShown + " — your bowl's empty that day!");
+            show("Nothing on " + dayShown + " — your bowl's empty that day!");
             return;
         }
 
-        System.out.println("Here's what's on " + dayShown + ":");
+        show("Here's what's on " + dayShown + ":");
         showNumbered(tasks, matchingIndices);
     }
 
@@ -139,24 +169,24 @@ public class Ui {
      */
     public void showMatchingTasks(String keyword, TaskList tasks, List<Integer> matchingIndices) {
         if (matchingIndices.isEmpty()) {
-            System.out.println("No sign of \"" + keyword + "\" in your bowl!");
+            show("No sign of \"" + keyword + "\" in your bowl!");
             return;
         }
 
-        System.out.println("Here's what matches \"" + keyword + "\":");
+        show("Here's what matches \"" + keyword + "\":");
         showNumbered(tasks, matchingIndices);
     }
 
     /** Prints the tasks at the given positions, each with its number in the full list. */
     private void showNumbered(TaskList tasks, List<Integer> indices) {
         for (int index : indices) {
-            System.out.println(numberedTask(index + 1, tasks.get(index)));
+            show(numberedTask(index + 1, tasks.get(index)));
         }
     }
 
     /** Warns that the save file could not be read at all, so the list starts empty. */
     public void showLoadingError(Path file) {
-        System.out.println("Ruff! I couldn't read " + file + " — starting with an empty list.");
+        show("Ruff! I couldn't read " + file + " — starting with an empty list.");
     }
 
     /**
@@ -165,14 +195,29 @@ public class Ui {
      * greeting under one message per line.
      */
     public void showSkippedLines(int skippedCount, Path file) {
-        System.out.println("Ruff! I couldn't read " + skippedCount + " line(s) in "
+        show("Ruff! I couldn't read " + skippedCount + " line(s) in "
                 + file + ", so I've skipped them.");
     }
 
     /** Warns that the tasks could not be written to disk, without ending the session. */
     public void showSavingError(Path file) {
-        System.out.println("Ruff! I couldn't save to " + file
+        show("Ruff! I couldn't save to " + file
                 + " — your tasks are safe for now, but they may not survive a restart.");
+    }
+
+    /**
+     * Writes one line, either to the screen or to the collected output.
+     *
+     * Every message in this class goes through here, so that switching between
+     * the console and the GUI is a matter of where this one method sends the
+     * line rather than a change to each message.
+     */
+    private void show(String line) {
+        if (captured == null) {
+            System.out.println(line);
+            return;
+        }
+        captured.append(line).append(System.lineSeparator());
     }
 
     /** Returns a task as it appears in a numbered list, e.g. "3.[D][ ] return book (by: Oct 15 2019)". */

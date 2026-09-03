@@ -58,7 +58,7 @@ application {
     // Launcher rather than Main: launching a class that extends Application
     // directly fails when the JavaFX classes come from the classpath, which is
     // how the shaded JAR ships them.
-    mainClass = 'rex.Launcher'
+    mainClass = 'rex.gui.Launcher'
 }
 
 jar {

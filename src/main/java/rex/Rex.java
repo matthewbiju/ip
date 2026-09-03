@@ -15,6 +15,7 @@ public class Rex {
     private final Ui ui;
     private final Storage storage;
     private TaskList tasks;
+    private boolean isExit = false;
 
     /**
      * Creates a chatbot that keeps its tasks in the given file.
@@ -66,6 +67,56 @@ public class Rex {
         }
 
         ui.close();
+    }
+
+    /**
+     * Greets the user and loads their tasks, for a GUI that has no loop of its
+     * own.
+     *
+     * The console version of this is the opening of run(). It is separate here
+     * because a window is already on screen before the user types anything, so
+     * the greeting has to be handed back to be shown rather than printed.
+     *
+     * @return the greeting, together with anything the load had to report.
+     */
+    public String start() {
+        ui.startCapture();
+        ui.showWelcome();
+        tasks = loadTasks();
+        ui.showReady();
+        return ui.takeCapture();
+    }
+
+    /**
+     * Carries out one command and returns what the user should be shown.
+     *
+     * This is the GUI's equivalent of one turn of run()'s loop. Note that the
+     * commands themselves are untouched: they still report through the Ui, and
+     * it is the Ui that has been told to collect its output instead of
+     * printing it.
+     *
+     * @param input the whole line the user typed.
+     * @return Rex's reply, ready to be put in a dialog box.
+     */
+    public String getResponse(String input) {
+        ui.startCapture();
+        try {
+            Command command = Parser.parse(input);
+            command.execute(tasks, ui);
+
+            if (command.isTaskListChanged()) {
+                saveTasks();
+            }
+            isExit = command.isExit();
+        } catch (RexException e) {
+            ui.showError(e.getMessage());
+        }
+        return ui.takeCapture();
+    }
+
+    /** Returns whether the last command asked to end the session. */
+    public boolean isExit() {
+        return isExit;
     }
 
     /**
