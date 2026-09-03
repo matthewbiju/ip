@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
 import rex.task.Deadline;
 import rex.task.Event;
 import rex.task.Task;
@@ -123,23 +124,23 @@ public class Storage {
 
         Task task;
         switch (type) {
-        case "T":
-            requireExactFieldCount(fields, 3);
-            task = new ToDo(description);
-            break;
-        case "D":
-            requireExactFieldCount(fields, 4);
-            // TaskDateTime.parse throws IllegalArgumentException on a date it
-            // cannot read, which is what load() already skips the line for, so
-            // a damaged date needs no handling of its own here.
-            task = new Deadline(description, TaskDateTime.parse(fields[3]));
-            break;
-        case "E":
-            requireExactFieldCount(fields, 5);
-            task = new Event(description, TaskDateTime.parse(fields[3]), TaskDateTime.parse(fields[4]));
-            break;
-        default:
-            throw new IllegalArgumentException("Unknown task type: " + type);
+            case "T":
+                requireExactFieldCount(fields, 3);
+                task = new ToDo(description);
+                break;
+            case "D":
+                requireExactFieldCount(fields, 4);
+                // TaskDateTime.parse throws IllegalArgumentException on a date it
+                // cannot read, which is what load() already skips the line for, so
+                // a damaged date needs no handling of its own here.
+                task = new Deadline(description, TaskDateTime.parse(fields[3]));
+                break;
+            case "E":
+                requireExactFieldCount(fields, 5);
+                task = new Event(description, TaskDateTime.parse(fields[3]), TaskDateTime.parse(fields[4]));
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown task type: " + type);
         }
 
         if (doneFlag.equals("1")) {

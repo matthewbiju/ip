@@ -1,12 +1,19 @@
 plugins {
     id 'java'
     id 'application'
+    id 'checkstyle'
     id 'com.gradleup.shadow' version '9.5.1'
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
+}
+
+checkstyle {
+    // The same version AddressBook Level 3 uses, so that the config file taken
+    // from it is read by the tool it was written for.
+    toolVersion = '14.1.0'
 }
 
 repositories {
