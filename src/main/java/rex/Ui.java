@@ -102,28 +102,28 @@ public class Ui {
 
     /** Confirms that a task was added, and says how many there are now. */
     public void showAdded(Task task, int taskCount) {
-        show("Got it! I've fetched this task for you:");
-        show("  " + formatTask(task));
-        show("You now have " + taskCount + " tasks in your bowl!");
+        show("Got it! I've fetched this task for you:",
+                "  " + formatTask(task),
+                "You now have " + taskCount + " tasks in your bowl!");
     }
 
     /** Confirms that a task is now done. */
     public void showMarked(Task task) {
-        show("Nice catch! I've marked this task as done:");
-        show("  " + formatTask(task));
+        show("Nice catch! I've marked this task as done:",
+                "  " + formatTask(task));
     }
 
     /** Confirms that a task is no longer done. */
     public void showUnmarked(Task task) {
-        show("Okay, putting this one back in the yard — not done yet:");
-        show("  " + formatTask(task));
+        show("Okay, putting this one back in the yard — not done yet:",
+                "  " + formatTask(task));
     }
 
     /** Confirms that a task was removed, and says how many are left. */
     public void showRemoved(Task task, int remainingCount) {
-        show("Gotcha! I've removed this task from your bowl:");
-        show("  " + formatTask(task));
-        show("You now have " + remainingCount + " tasks in your bowl!");
+        show("Gotcha! I've removed this task from your bowl:",
+                "  " + formatTask(task),
+                "You now have " + remainingCount + " tasks in your bowl!");
     }
 
     /** Shows every task, numbered from 1. */
@@ -207,18 +207,27 @@ public class Ui {
     }
 
     /**
-     * Writes one line, either to the screen or to the collected output.
+     * Writes lines, either to the screen or to the collected output.
      *
      * Every message in this class goes through here, so that switching between
-     * the console and the GUI is a matter of where this one method sends the
-     * line rather than a change to each message.
+     * the console and the GUI is a matter of where this one method sends them
+     * rather than a change to each message.
+     *
+     * Taking a variable number of lines lets a message that is always shown as
+     * a group be written as one call, which keeps the group visible in the
+     * source instead of being spread over several statements that only happen
+     * to sit next to each other.
+     *
+     * @param lines the lines to write, in order.
      */
-    private void show(String line) {
-        if (captured == null) {
-            System.out.println(line);
-            return;
+    private void show(String... lines) {
+        for (String line : lines) {
+            if (captured == null) {
+                System.out.println(line);
+            } else {
+                captured.append(line).append(System.lineSeparator());
+            }
         }
-        captured.append(line).append(System.lineSeparator());
     }
 
     /** Returns a task as it appears in a numbered list, e.g. "3.[D][ ] return book (by: Oct 15 2019)". */
