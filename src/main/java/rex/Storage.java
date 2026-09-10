@@ -143,6 +143,8 @@ public class Storage {
                 throw new IllegalArgumentException("Unknown task type: " + type);
         }
 
+        assert task != null : "Every branch above either builds a task or throws";
+
         if (doneFlag.equals("1")) {
             task.markAsDone();
         }
