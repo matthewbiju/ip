@@ -16,6 +16,14 @@ public class Rex {
     private final Ui ui;
     private final Storage storage;
     private TaskList tasks;
+
+    /**
+     * Whether the last command asked to end the session.
+     *
+     * Both ways of running Rex use this one flag: the console loop reads it
+     * to decide whether to go round again, and the GUI reads it through
+     * isExit() to decide whether to close the window.
+     */
     private boolean isExit = false;
 
     /**
@@ -50,7 +58,6 @@ public class Rex {
         tasks = loadTasks();
         ui.showReady();
 
-        boolean isExit = false;
         while (!isExit) {
             try {
                 Command command = Parser.parse(ui.readCommand());
