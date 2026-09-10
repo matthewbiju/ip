@@ -32,6 +32,10 @@ import rex.task.ToDo;
  * sentence meant to be shown to them as-is.
  */
 public class Parser {
+    /** Shown with both event errors, so the example is written down once. */
+    private static final String EVENT_EXAMPLE =
+            "e.g. event project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.";
+
     /**
      * Turns a line the user typed into the command it asks for.
      *
@@ -104,11 +108,7 @@ public class Parser {
      * @throws RexException if no description was given.
      */
     public static ToDo parseTodo(String argument) throws RexException {
-        String description = argument.trim();
-        if (description.isEmpty()) {
-            throw new RexException("Ruff! The description of a todo cannot be empty.");
-        }
-        return new ToDo(description);
+        return new ToDo(requireDescription(argument, "todo"));
     }
 
     /**
@@ -122,16 +122,11 @@ public class Parser {
      */
     public static Deadline parseDeadline(String argument) throws RexException {
         String[] parts = argument.split(" /by ", 2);
-        String description = parts[0].trim();
-        if (description.isEmpty()) {
-            throw new RexException("Ruff! The description of a deadline cannot be empty.");
-        }
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            throw new RexException("Ruff! A deadline needs a '/by' date, "
-                    + "e.g. deadline return book /by 2019-10-15.");
-        }
+        String description = requireDescription(parts[0], "deadline");
+        String by = requireFollowing(parts, "Ruff! A deadline needs a '/by' date, "
+                + "e.g. deadline return book /by 2019-10-15.");
 
-        return new Deadline(description, parseDateTime(parts[1]));
+        return new Deadline(description, parseDateTime(by));
     }
 
     /**
@@ -145,22 +140,15 @@ public class Parser {
      */
     public static Event parseEvent(String argument) throws RexException {
         String[] fromParts = argument.split(" /from ", 2);
-        String description = fromParts[0].trim();
-        if (description.isEmpty()) {
-            throw new RexException("Ruff! The description of an event cannot be empty.");
-        }
-        if (fromParts.length < 2 || fromParts[1].trim().isEmpty()) {
-            throw new RexException("Ruff! An event needs a '/from' time, e.g. event "
-                    + "project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.");
-        }
+        String description = requireDescription(fromParts[0], "event");
+        String times = requireFollowing(fromParts,
+                "Ruff! An event needs a '/from' time, " + EVENT_EXAMPLE);
 
-        String[] toParts = fromParts[1].split(" /to ", 2);
-        if (toParts.length < 2 || toParts[1].trim().isEmpty()) {
-            throw new RexException("Ruff! An event needs a '/to' time, e.g. event "
-                    + "project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.");
-        }
+        String[] toParts = times.split(" /to ", 2);
+        String to = requireFollowing(toParts,
+                "Ruff! An event needs a '/to' time, " + EVENT_EXAMPLE);
 
-        return new Event(description, parseDateTime(toParts[0]), parseDateTime(toParts[1]));
+        return new Event(description, parseDateTime(toParts[0]), parseDateTime(to));
     }
 
     /**
@@ -215,6 +203,41 @@ public class Parser {
             throw new RexException("Woof! Tell me what to sniff out, e.g. find book.");
         }
         return keyword;
+    }
+
+    /**
+     * Returns the description in front of the first marker, refusing one that
+     * is empty.
+     *
+     * All three kinds of task begin the same way, with a description, so the
+     * check and its wording live here rather than three times over.
+     *
+     * @param text everything before the first marker, e.g. "/by".
+     * @param taskKind how the kind of task is named in the message shown to
+     *     the user, e.g. "deadline".
+     * @throws RexException if nothing but spaces was given.
+     */
+    private static String requireDescription(String text, String taskKind) throws RexException {
+        String description = text.trim();
+        if (description.isEmpty()) {
+            throw new RexException("Ruff! The description of a " + taskKind + " cannot be empty.");
+        }
+        return description;
+    }
+
+    /**
+     * Returns what followed a marker such as "/by", refusing input where the
+     * marker is missing or nothing comes after it.
+     *
+     * @param parts the result of splitting on the marker, at most two long.
+     * @param message the complete sentence to show if the part is not there.
+     * @throws RexException if the marker was missing or followed by nothing.
+     */
+    private static String requireFollowing(String[] parts, String message) throws RexException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new RexException(message);
+        }
+        return parts[1];
     }
 
     /** Returns the first space-separated word, e.g. "todo" from "todo borrow book". */
