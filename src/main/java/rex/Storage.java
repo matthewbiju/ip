@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import rex.task.Deadline;
 import rex.task.Event;
@@ -20,6 +21,22 @@ import rex.task.ToDo;
  * the program just hands it a list of tasks.
  */
 public class Storage {
+    /**
+     * How many fields each kind of saved line has. Every line names its type,
+     * says whether it is done and carries a description; a todo stops there,
+     * while a deadline adds one date and an event adds two.
+     */
+    private static final int TODO_FIELD_COUNT = 3;
+    private static final int DEADLINE_FIELD_COUNT = 4;
+    private static final int EVENT_FIELD_COUNT = 5;
+
+    /**
+     * The separator as a regular expression, since split() reads its argument
+     * as one and "|" means "or" there. Quoting it keeps the two spellings of
+     * the separator from drifting apart.
+     */
+    private static final String FIELD_SEPARATOR_PATTERN = Pattern.quote(Task.FIELD_SEPARATOR);
+
     private final Path file;
     private int skippedLineCount = 0;
 
@@ -106,47 +123,59 @@ public class Storage {
      * examined here to decide which kind of task to create.
      */
     private static Task parseTask(String line) {
-        String[] fields = line.split(" \\| ");
+        String[] fields = line.split(FIELD_SEPARATOR_PATTERN);
         // Every field is checked before it is used, so that a damaged line
         // always fails as an IllegalArgumentException the caller can skip,
         // rather than as an out-of-bounds error further down.
-        requireAtLeastFieldCount(fields, 3);
+        requireAtLeastFieldCount(fields, TODO_FIELD_COUNT);
 
-        String type = fields[0];
         String doneFlag = fields[1];
-        String description = fields[2];
         if (!doneFlag.equals("0") && !doneFlag.equals("1")) {
             throw new IllegalArgumentException("Done flag is not 0 or 1: " + doneFlag);
         }
-        if (description.trim().isEmpty()) {
-            throw new IllegalArgumentException("Description is empty");
-        }
 
-        Task task;
-        switch (type) {
-            case "T":
-                requireExactFieldCount(fields, 3);
-                task = new ToDo(description);
-                break;
-            case "D":
-                requireExactFieldCount(fields, 4);
-                // TaskDateTime.parse throws IllegalArgumentException on a date it
-                // cannot read, which is what load() already skips the line for, so
-                // a damaged date needs no handling of its own here.
-                task = new Deadline(description, TaskDateTime.parse(fields[3]));
-                break;
-            case "E":
-                requireExactFieldCount(fields, 5);
-                task = new Event(description, TaskDateTime.parse(fields[3]), TaskDateTime.parse(fields[4]));
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown task type: " + type);
-        }
-
+        Task task = buildTask(fields);
         if (doneFlag.equals("1")) {
             task.markAsDone();
         }
         return task;
+    }
+
+    /**
+     * Builds a task of the kind named by the line's first field, without
+     * regard to whether it has been done.
+     *
+     * Kept apart from parseTask so that each says one thing: parseTask reads
+     * what every line has in common, and this reads what makes the kinds
+     * differ.
+     *
+     * @param fields the line already split on the separator.
+     * @throws IllegalArgumentException if the type is unknown, the line has
+     *     the wrong number of fields for it, or a date cannot be read.
+     */
+    private static Task buildTask(String[] fields) {
+        String type = fields[0];
+        String description = fields[2];
+        if (description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description is empty");
+        }
+
+        switch (type) {
+            case "T":
+                requireExactFieldCount(fields, TODO_FIELD_COUNT);
+                return new ToDo(description);
+            case "D":
+                requireExactFieldCount(fields, DEADLINE_FIELD_COUNT);
+                // TaskDateTime.parse throws IllegalArgumentException on a date it
+                // cannot read, which is what load() already skips the line for, so
+                // a damaged date needs no handling of its own here.
+                return new Deadline(description, TaskDateTime.parse(fields[3]));
+            case "E":
+                requireExactFieldCount(fields, EVENT_FIELD_COUNT);
+                return new Event(description, TaskDateTime.parse(fields[3]), TaskDateTime.parse(fields[4]));
+            default:
+                throw new IllegalArgumentException("Unknown task type: " + type);
+        }
     }
 
     /** Throws IllegalArgumentException if the line has fewer fields than needed. */
