@@ -111,9 +111,13 @@ def _start_process(build_dir: Path, main_class: str, work_dir: Path):
     files it creates (e.g. its save file) land in a throwaway directory
     instead of the repository, keeping test cases isolated from each other
     and from real data. build_dir must therefore be an absolute path.
+
+    Assertions are enabled with -ea so that a broken internal assumption
+    fails these tests instead of passing unnoticed; Java ignores every
+    assert statement without that flag.
     """
     proc = subprocess.Popen(
-        ["java", "-cp", str(build_dir), main_class],
+        ["java", "-ea", "-cp", str(build_dir), main_class],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         text=True, bufsize=1, cwd=str(work_dir),
     )

@@ -54,6 +54,8 @@ public class Ui {
      * @return the collected output, without a trailing newline.
      */
     public String takeCapture() {
+        assert captured != null : "takeCapture() was called without a startCapture() before it";
+
         String collected = captured.toString().stripTrailing();
         captured = null;
         return collected;
@@ -181,6 +183,12 @@ public class Ui {
 
     /** Prints the tasks at the given positions, each with its number in the full list. */
     private void showNumbered(TaskList tasks, List<Integer> indices) {
+        // The positions come from the same list they are about to be read
+        // from, so one that is out of range means the two have drifted apart.
+        // Checking them all up front costs nothing once assertions are off.
+        assert indices.stream().allMatch(index -> index >= 0 && index < tasks.size())
+                : "A position to show is not in this list";
+
         show(indices.stream()
                 .map(index -> numberedTask(index + 1, tasks.get(index)))
                 .toArray(String[]::new));

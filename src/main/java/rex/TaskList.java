@@ -31,6 +31,7 @@ public class TaskList {
      *     save file.
      */
     public TaskList(ArrayList<Task> tasks) {
+        assert tasks != null : "A task list is built either empty or from tasks that were loaded";
         this.tasks = tasks;
     }
 
@@ -45,11 +46,13 @@ public class TaskList {
      * @param index a position that has already been checked against size().
      */
     public Task get(int index) {
+        assert index >= 0 && index < tasks.size() : "Position " + index + " was never checked against size()";
         return tasks.get(index);
     }
 
     /** Adds a task to the end of the list. */
     public void add(Task task) {
+        assert task != null : "The parser builds a task before an add command is created";
         tasks.add(task);
     }
 
@@ -124,6 +127,8 @@ public class TaskList {
      * @return the positions, counting from 0, of every task containing it.
      */
     public List<Integer> findIndicesMatching(String keyword) {
+        assert keyword != null && !keyword.isEmpty() : "The parser refuses a find command with no keyword";
+
         String lowercaseKeyword = keyword.toLowerCase();
 
         return IntStream.range(0, tasks.size())
