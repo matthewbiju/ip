@@ -61,6 +61,7 @@ public class Rex {
         while (!isExit) {
             try {
                 Command command = Parser.parse(ui.readCommand());
+                assert command != null : "The parser answers an unrecognized word with an UnknownCommand";
                 command.execute(tasks, ui);
 
                 // Reached only if the command succeeded, so the list is saved
@@ -110,6 +111,7 @@ public class Rex {
         ui.startCapture();
         try {
             Command command = Parser.parse(input);
+            assert command != null : "The parser answers an unrecognized word with an UnknownCommand";
             command.execute(tasks, ui);
 
             if (command.isTaskListChanged()) {

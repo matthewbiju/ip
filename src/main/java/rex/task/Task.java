@@ -31,6 +31,9 @@ public class Task {
      * @param description what the task says, e.g. "return book".
      */
     public Task(String description) {
+        assert description != null && !description.isBlank()
+                : "An empty description is refused before a task is built";
+
         this.description = description;
         this.isDone = false;
     }

@@ -135,6 +135,8 @@ public class Storage {
         }
 
         Task task = buildTask(fields);
+        assert task != null : "buildTask either builds a task or throws";
+
         if (doneFlag.equals("1")) {
             task.markAsDone();
         }
