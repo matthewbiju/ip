@@ -66,6 +66,12 @@ application {
     // directly fails when the JavaFX classes come from the classpath, which is
     // how the shaded JAR ships them.
     mainClass = 'rex.gui.Launcher'
+
+    // Java skips every assert statement unless the virtual machine is started
+    // with -ea, so without this the assertions in the code would never run.
+    // Gradle's test task already enables them on its own, so only the ways of
+    // starting the application itself need saying here.
+    applicationDefaultJvmArgs = ['-ea']
 }
 
 jar {
