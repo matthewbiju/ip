@@ -13,7 +13,16 @@ import java.time.LocalDate;
  * being marked done.
  */
 public class Task {
-    private String description;
+    /**
+     * What stands between two fields of a task's line in the save file.
+     *
+     * The format is this class's own, so the separator is named here and used
+     * by every class that writes or reads a saved line, rather than the same
+     * three characters being spelled out in each of them.
+     */
+    public static final String FIELD_SEPARATOR = " | ";
+
+    private final String description;
     private boolean isDone;
 
     /**
@@ -95,11 +104,11 @@ public class Task {
      * "T | 1 | read book", where the second field is 1 if the task is done
      * and 0 if it is not. Subclasses append their own extra fields to this.
      *
-     * Note that a description containing " | " would produce a line that
-     * cannot be read back correctly. Descriptions like that are rare enough
-     * that this is left unhandled rather than escaped.
+     * Note that a description containing the field separator would produce
+     * a line that cannot be read back correctly. Descriptions like that are
+     * rare enough that this is left unhandled rather than escaped.
      */
     public String toSaveFormat() {
-        return getTypeIcon() + " | " + (isDone ? "1" : "0") + " | " + description;
+        return getTypeIcon() + FIELD_SEPARATOR + (isDone ? "1" : "0") + FIELD_SEPARATOR + description;
     }
 }
