@@ -3,6 +3,7 @@ package rex;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 import rex.task.Task;
 
@@ -131,9 +132,9 @@ public class Ui {
     /** Shows every task, numbered from 1. */
     public void showTaskList(TaskList tasks) {
         show("Here's what's in your bowl:");
-        for (int i = 0; i < tasks.size(); i++) {
-            show(numberedTask(i + 1, tasks.get(i)));
-        }
+        show(IntStream.range(0, tasks.size())
+                .mapToObj(index -> numberedTask(index + 1, tasks.get(index)))
+                .toArray(String[]::new));
     }
 
     /**
@@ -182,12 +183,15 @@ public class Ui {
 
     /** Prints the tasks at the given positions, each with its number in the full list. */
     private void showNumbered(TaskList tasks, List<Integer> indices) {
-        for (int index : indices) {
-            // The positions come from the same list they are about to be read
-            // from, so one that is out of range means the two have drifted apart.
-            assert index >= 0 && index < tasks.size() : "Position " + index + " is not in this list";
-            show(numberedTask(index + 1, tasks.get(index)));
-        }
+        // The positions come from the same list they are about to be read
+        // from, so one that is out of range means the two have drifted apart.
+        // Checking them all up front costs nothing once assertions are off.
+        assert indices.stream().allMatch(index -> index >= 0 && index < tasks.size())
+                : "A position to show is not in this list";
+
+        show(indices.stream()
+                .map(index -> numberedTask(index + 1, tasks.get(index)))
+                .toArray(String[]::new));
     }
 
     /** Warns that the save file could not be read at all, so the list starts empty. */

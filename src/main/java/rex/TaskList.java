@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import rex.task.Task;
 
@@ -105,13 +106,12 @@ public class TaskList {
      * @return the positions, counting from 0, of every task on that day.
      */
     public List<Integer> findIndicesOn(LocalDate day) {
-        List<Integer> matchingIndices = new ArrayList<>();
-        for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).isOn(day)) {
-                matchingIndices.add(i);
-            }
-        }
-        return matchingIndices;
+        // A stream over the positions rather than over the tasks themselves,
+        // because it is the positions that are being collected.
+        return IntStream.range(0, tasks.size())
+                .filter(index -> tasks.get(index).isOn(day))
+                .boxed()
+                .toList();
     }
 
     /**
@@ -130,13 +130,12 @@ public class TaskList {
         assert keyword != null && !keyword.isEmpty() : "The parser refuses a find command with no keyword";
 
         String lowercaseKeyword = keyword.toLowerCase();
-        List<Integer> matchingIndices = new ArrayList<>();
-        for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).getDescription().toLowerCase().contains(lowercaseKeyword)) {
-                matchingIndices.add(i);
-            }
-        }
-        return matchingIndices;
+
+        return IntStream.range(0, tasks.size())
+                .filter(index -> tasks.get(index).getDescription()
+                        .toLowerCase().contains(lowercaseKeyword))
+                .boxed()
+                .toList();
     }
 
     /**

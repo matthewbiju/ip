@@ -67,10 +67,9 @@ public class Storage {
             Files.createDirectories(folder);
         }
 
-        List<String> lines = new ArrayList<>();
-        for (Task task : tasks) {
-            lines.add(task.toSaveFormat());
-        }
+        List<String> lines = tasks.stream()
+                .map(Task::toSaveFormat)
+                .toList();
         Files.write(file, lines);
     }
 
