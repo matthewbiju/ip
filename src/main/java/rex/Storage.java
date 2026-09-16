@@ -13,6 +13,7 @@ import rex.task.Event;
 import rex.task.Task;
 import rex.task.TaskDateTime;
 import rex.task.ToDo;
+import rex.task.WithinPeriod;
 
 /**
  * Saves the task list to a file on disk and loads it back, so that tasks
@@ -29,6 +30,7 @@ public class Storage {
     private static final int TODO_FIELD_COUNT = 3;
     private static final int DEADLINE_FIELD_COUNT = 4;
     private static final int EVENT_FIELD_COUNT = 5;
+    private static final int WITHIN_FIELD_COUNT = 5;
 
     /**
      * The separator as a regular expression, since split() reads its argument
@@ -174,6 +176,10 @@ public class Storage {
             case "E":
                 requireExactFieldCount(fields, EVENT_FIELD_COUNT);
                 return new Event(description, TaskDateTime.parse(fields[3]), TaskDateTime.parse(fields[4]));
+            case "W":
+                requireExactFieldCount(fields, WITHIN_FIELD_COUNT);
+                return new WithinPeriod(description,
+                        TaskDateTime.parse(fields[3]), TaskDateTime.parse(fields[4]));
             default:
                 throw new IllegalArgumentException("Unknown task type: " + type);
         }

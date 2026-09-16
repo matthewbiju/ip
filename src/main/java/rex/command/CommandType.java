@@ -9,5 +9,5 @@ package rex.command;
  * parser uses this only to decide which one of them to build.
  */
 public enum CommandType {
-    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, ON, FIND, BYE, UNKNOWN
+    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, WITHIN, ON, FIND, BYE, UNKNOWN
 }

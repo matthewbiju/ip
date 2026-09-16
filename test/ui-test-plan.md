@@ -546,3 +546,90 @@ Here's what matches "book":
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
+
+### TC12: Tasks to be done within a period
+
+**Aim:** Verify `within` adds a task carrying a date range, that the range is
+shown and searched by `on` for every day it covers, and that the task survives
+a restart.
+
+```session
+>>> (startup)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> within collect certificate /from 2026-01-15 /to 2026-01-25
+Got it! I've fetched this task for you:
+  [W][ ] collect certificate (within: Jan 15 2026 to Jan 25 2026)
+You now have 1 tasks in your bowl!
+>>> within vote /from 2026-01-15 1800 /to 2026-01-16 0900
+Got it! I've fetched this task for you:
+  [W][ ] vote (within: Jan 15 2026, 6:00PM to Jan 16 2026, 9:00AM)
+You now have 2 tasks in your bowl!
+>>> list
+Here's what's in your bowl:
+1.[W][ ] collect certificate (within: Jan 15 2026 to Jan 25 2026)
+2.[W][ ] vote (within: Jan 15 2026, 6:00PM to Jan 16 2026, 9:00AM)
+>>> on 2026-01-15
+Here's what's on Jan 15 2026:
+1.[W][ ] collect certificate (within: Jan 15 2026 to Jan 25 2026)
+2.[W][ ] vote (within: Jan 15 2026, 6:00PM to Jan 16 2026, 9:00AM)
+>>> on 2026-01-20
+Here's what's on Jan 20 2026:
+1.[W][ ] collect certificate (within: Jan 15 2026 to Jan 25 2026)
+>>> on 2026-01-25
+Here's what's on Jan 25 2026:
+1.[W][ ] collect certificate (within: Jan 15 2026 to Jan 25 2026)
+>>> on 2026-01-26
+Nothing on Jan 26 2026 — your bowl's empty that day!
+>>> mark 1
+Nice catch! I've marked this task as done:
+  [W][X] collect certificate (within: Jan 15 2026 to Jan 25 2026)
+>>> (restart)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> list
+Here's what's in your bowl:
+1.[W][X] collect certificate (within: Jan 15 2026 to Jan 25 2026)
+2.[W][ ] vote (within: Jan 15 2026, 6:00PM to Jan 16 2026, 9:00AM)
+>>> bye
+Bye! *wags tail* Hope to fetch for you again soon!
+```
+
+### TC13: Bad within commands
+
+**Aim:** Verify a `within` command missing its description, either marker or a
+readable date is refused with a message naming what is wrong.
+
+```session
+>>> (startup)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> within
+OOPS!!! Ruff! The description of a within-period task cannot be empty.
+>>> within collect certificate
+OOPS!!! Ruff! A within task needs a '/from' date, e.g. within collect certificate /from 2026-01-15 /to 2026-01-25.
+>>> within collect certificate /from 2026-01-15
+OOPS!!! Ruff! A within task needs a '/to' date, e.g. within collect certificate /from 2026-01-15 /to 2026-01-25.
+>>> within collect certificate /from someday /to 2026-01-25
+OOPS!!! Woof! I don't understand the date "someday". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
+>>> bye
+Bye! *wags tail* Hope to fetch for you again soon!
+```
