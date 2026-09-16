@@ -18,6 +18,7 @@ import rex.task.Deadline;
 import rex.task.Event;
 import rex.task.TaskDateTime;
 import rex.task.ToDo;
+import rex.task.WithinPeriod;
 
 /**
  * Makes sense of what the user typed.
@@ -35,6 +36,10 @@ public class Parser {
     /** Shown with both event errors, so the example is written down once. */
     private static final String EVENT_EXAMPLE =
             "e.g. event project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.";
+
+    /** Shown with both within errors, for the same reason as EVENT_EXAMPLE. */
+    private static final String WITHIN_EXAMPLE =
+            "e.g. within collect certificate /from 2026-01-15 /to 2026-01-25.";
 
     /**
      * Turns a line the user typed into the command it asks for.
@@ -65,6 +70,8 @@ public class Parser {
                 return new AddCommand(parseDeadline(argument));
             case EVENT:
                 return new AddCommand(parseEvent(argument));
+            case WITHIN:
+                return new AddCommand(parseWithin(argument));
             case ON:
                 return new OnCommand(parseQueryDate(argument));
             case FIND:
@@ -149,6 +156,31 @@ public class Parser {
                 "Ruff! An event needs a '/to' time, " + EVENT_EXAMPLE);
 
         return new Event(description, parseDateTime(toParts[0]), parseDateTime(to));
+    }
+
+    /**
+     * Reads the argument of a within command, e.g.
+     * "collect certificate /from 2026-01-15 /to 2026-01-25".
+     *
+     * The same /from and /to markers as an event, so that there is one way of
+     * writing a pair of dates rather than one way per command.
+     *
+     * @param argument everything after the word "within".
+     * @return the task it describes.
+     * @throws RexException if the description, the /from date or the /to date
+     *     is missing, or either date cannot be read.
+     */
+    public static WithinPeriod parseWithin(String argument) throws RexException {
+        String[] fromParts = argument.split(" /from ", 2);
+        String description = requireDescription(fromParts[0], "within-period task");
+        String dates = requireFollowing(fromParts,
+                "Ruff! A within task needs a '/from' date, " + WITHIN_EXAMPLE);
+
+        String[] toParts = dates.split(" /to ", 2);
+        String to = requireFollowing(toParts,
+                "Ruff! A within task needs a '/to' date, " + WITHIN_EXAMPLE);
+
+        return new WithinPeriod(description, parseDateTime(toParts[0]), parseDateTime(to));
     }
 
     /**

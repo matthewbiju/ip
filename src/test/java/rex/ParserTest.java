@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import rex.task.Deadline;
 import rex.task.Event;
+import rex.task.WithinPeriod;
 
 /**
  * Tests reading the arguments of the commands that take more than a word.
@@ -106,6 +107,47 @@ public class ParserTest {
     @Test
     void parseEvent_unreadableStartDate_exceptionThrown() {
         assertThrows(RexException.class, () -> Parser.parseEvent("meeting /from someday /to 2019-10-15 1600"));
+    }
+
+    @Test
+    void parseWithin_descriptionAndBothDates_returnsWithinPeriod() throws RexException {
+        WithinPeriod within = Parser.parseWithin("collect certificate /from 2026-01-15 /to 2026-01-25");
+
+        assertEquals("W | 0 | collect certificate | 2026-01-15 | 2026-01-25", within.toSaveFormat());
+    }
+
+    @Test
+    void parseWithin_datesCarryingTimes_timesKept() throws RexException {
+        WithinPeriod within = Parser.parseWithin("vote /from 2026-01-15 1800 /to 2026-01-16 0900");
+
+        assertEquals("W | 0 | vote | 2026-01-15 1800 | 2026-01-16 0900", within.toSaveFormat());
+    }
+
+    @Test
+    void parseWithin_missingFrom_exceptionThrown() {
+        String argument = "collect certificate";
+        RexException thrown = assertThrows(RexException.class, () -> Parser.parseWithin(argument));
+
+        assertTrue(thrown.getMessage().contains("/from"), thrown.getMessage());
+    }
+
+    @Test
+    void parseWithin_missingTo_exceptionThrown() {
+        String argument = "collect certificate /from 2026-01-15";
+        RexException thrown = assertThrows(RexException.class, () -> Parser.parseWithin(argument));
+
+        assertTrue(thrown.getMessage().contains("/to"), thrown.getMessage());
+    }
+
+    @Test
+    void parseWithin_emptyDescription_exceptionThrown() {
+        assertThrows(RexException.class, () -> Parser.parseWithin(" /from 2026-01-15 /to 2026-01-25"));
+    }
+
+    @Test
+    void parseWithin_unreadableDate_exceptionThrown() {
+        String argument = "collect certificate /from someday /to 2026-01-25";
+        assertThrows(RexException.class, () -> Parser.parseWithin(argument));
     }
 
     @Test
