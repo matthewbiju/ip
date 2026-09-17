@@ -96,11 +96,15 @@ public class Ui {
     /**
      * Reports a mistake in a command.
      *
+     * Every RexException message opens with a bark of its own, so nothing is
+     * added here: a prefix would leave two interjections running into each
+     * other, as in "Grrr! Ruff! The description of a todo cannot be empty."
+     *
      * @param message a complete sentence explaining what went wrong, taken
      *     from the RexException that was thrown.
      */
     public void showError(String message) {
-        show("OOPS!!! " + message);
+        show(message);
     }
 
     /** Confirms that a task was added, and says how many there are now. */

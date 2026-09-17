@@ -167,25 +167,25 @@ reported the same way as any other mistake in a command.
 Woof woof! I'm Rex, your task-fetching sidekick!
 What can I fetch for you today?
 >>> todo
-OOPS!!! Ruff! The description of a todo cannot be empty.
+Ruff! The description of a todo cannot be empty.
 >>> blah
-OOPS!!! Woof? I don't know what that means :-(
+Woof? I don't know what that means :-(
 >>> deadline return book
-OOPS!!! Ruff! A deadline needs a '/by' date, e.g. deadline return book /by 2019-10-15.
+Ruff! A deadline needs a '/by' date, e.g. deadline return book /by 2019-10-15.
 >>> deadline return book /by Sunday
-OOPS!!! Woof! I don't understand the date "Sunday". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
+Woof! I don't understand the date "Sunday". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
 >>> deadline return book /by 15/10/2019
-OOPS!!! Woof! I don't understand the date "15/10/2019". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
+Woof! I don't understand the date "15/10/2019". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
 >>> event project meeting /from 2019-10-15 1400
-OOPS!!! Ruff! An event needs a '/to' time, e.g. event project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.
+Ruff! An event needs a '/to' time, e.g. event project meeting /from 2019-10-15 1400 /to 2019-10-15 1600.
 >>> event project meeting /from Monday /to 2019-10-15 1600
-OOPS!!! Woof! I don't understand the date "Monday". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
+Woof! I don't understand the date "Monday". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
 >>> event project meeting /from 2019-10-15 1400 /to whenever
-OOPS!!! Woof! I don't understand the date "whenever". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
+Woof! I don't understand the date "whenever". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
 >>> mark abc
-OOPS!!! Woof! "abc" isn't a valid task number.
+Woof! "abc" isn't a valid task number.
 >>> mark 99
-OOPS!!! Woof! There's no task numbered 99 in your bowl.
+Woof! There's no task numbered 99 in your bowl.
 >>> todo borrow book
 Got it! I've fetched this task for you:
   [T][ ] borrow book
@@ -231,7 +231,7 @@ Here's what's in your bowl:
 1.[T][ ] read book
 2.[T][ ] borrow book
 >>> delete 99
-OOPS!!! Woof! There's no task numbered 99 in your bowl.
+Woof! There's no task numbered 99 in your bowl.
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
@@ -469,11 +469,11 @@ Here's what's on Oct 15 2019:
 2.[D][ ] return book (by: Oct 15 2019)
 3.[D][X] submit report (by: Oct 15 2019, 6:00PM)
 >>> on
-OOPS!!! Woof! Tell me which day to look at, written as yyyy-mm-dd, e.g. on 2019-10-15.
+Woof! Tell me which day to look at, written as yyyy-mm-dd, e.g. on 2019-10-15.
 >>> on Tuesday
-OOPS!!! Woof! Tell me which day to look at, written as yyyy-mm-dd, e.g. on 2019-10-15.
+Woof! Tell me which day to look at, written as yyyy-mm-dd, e.g. on 2019-10-15.
 >>> on 2019-10-15 1800
-OOPS!!! Woof! Tell me which day to look at, written as yyyy-mm-dd, e.g. on 2019-10-15.
+Woof! Tell me which day to look at, written as yyyy-mm-dd, e.g. on 2019-10-15.
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
@@ -534,7 +534,7 @@ Here's what matches "milk":
 >>> find zzz
 No sign of "zzz" in your bowl!
 >>> find
-OOPS!!! Woof! Tell me what to sniff out, e.g. find book.
+Woof! Tell me what to sniff out, e.g. find book.
 >>> mark 2
 Nice catch! I've marked this task as done:
   [D][X] return book (by: Oct 15 2019)
@@ -623,13 +623,13 @@ readable date is refused with a message naming what is wrong.
 Woof woof! I'm Rex, your task-fetching sidekick!
 What can I fetch for you today?
 >>> within
-OOPS!!! Ruff! The description of a within-period task cannot be empty.
+Ruff! The description of a within-period task cannot be empty.
 >>> within collect certificate
-OOPS!!! Ruff! A within task needs a '/from' date, e.g. within collect certificate /from 2026-01-15 /to 2026-01-25.
+Ruff! A within task needs a '/from' date, e.g. within collect certificate /from 2026-01-15 /to 2026-01-25.
 >>> within collect certificate /from 2026-01-15
-OOPS!!! Ruff! A within task needs a '/to' date, e.g. within collect certificate /from 2026-01-15 /to 2026-01-25.
+Ruff! A within task needs a '/to' date, e.g. within collect certificate /from 2026-01-15 /to 2026-01-25.
 >>> within collect certificate /from someday /to 2026-01-25
-OOPS!!! Woof! I don't understand the date "someday". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
+Woof! I don't understand the date "someday". Write it as yyyy-mm-dd, e.g. 2019-10-15, optionally with a 24-hour time, e.g. 2019-10-15 1800.
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```

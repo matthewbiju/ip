@@ -151,8 +151,8 @@ public class Rex {
     /**
      * Saves the tasks, warning the user if the save failed but letting the
      * session carry on. A failed save is not the user's mistake, so it is not
-     * reported as a RexException (which would print "OOPS!!!" and suggest they
-     * typed something wrong), and it must not end the session: the tasks they
+     * reported as a RexException (which would suggest they typed something
+     * wrong), and it must not end the session: the tasks they
      * have added are still usable in memory.
      */
     private void saveTasks() {
