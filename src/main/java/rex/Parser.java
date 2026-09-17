@@ -283,8 +283,8 @@ public class Parser {
      *
      * TaskDateTime reports a date it cannot read as an IllegalArgumentException,
      * which would end the program. It is turned into a RexException here so that
-     * it is shown as an "OOPS!!!" message and the session carries on, the same
-     * as any other mistake in a command.
+     * it is shown to the user and the session carries on, the same as any
+     * other mistake in a command.
      */
     private static TaskDateTime parseDateTime(String argument) throws RexException {
         try {
