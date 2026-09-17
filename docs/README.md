@@ -59,6 +59,14 @@ Adds a task with no date attached.
 
 Format: `todo DESCRIPTION`
 
+A description can hold almost anything except the `|` character, which Rex
+uses to separate fields in his save file. This goes for every kind of task:
+
+```
+> todo buy milk | eggs
+Ruff! A description can't contain '|' — I use it to keep your tasks apart in the save file.
+```
+
 Example: `todo read book`
 
 ```

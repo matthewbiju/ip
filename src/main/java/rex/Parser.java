@@ -16,6 +16,7 @@ import rex.command.UnknownCommand;
 import rex.command.UnmarkCommand;
 import rex.task.Deadline;
 import rex.task.Event;
+import rex.task.Task;
 import rex.task.TaskDateTime;
 import rex.task.ToDo;
 import rex.task.WithinPeriod;
@@ -239,20 +240,32 @@ public class Parser {
 
     /**
      * Returns the description in front of the first marker, refusing one that
-     * is empty.
+     * is empty or that holds the save file's separator.
      *
-     * All three kinds of task begin the same way, with a description, so the
-     * check and its wording live here rather than three times over.
+     * Every kind of task begins the same way, with a description, so the
+     * checks and their wording live here rather than once per kind.
+     *
+     * The separator is refused as a single "|" rather than only with the
+     * spaces around it. Only the spaced form actually breaks a saved line, but
+     * "no |" is a rule the user can remember, where "no | between two spaces"
+     * is not.
      *
      * @param text everything before the first marker, e.g. "/by".
      * @param taskKind how the kind of task is named in the message shown to
      *     the user, e.g. "deadline".
-     * @throws RexException if nothing but spaces was given.
+     * @throws RexException if nothing but spaces was given, or the description
+     *     contains the separator.
      */
     private static String requireDescription(String text, String taskKind) throws RexException {
         String description = text.trim();
         if (description.isEmpty()) {
             throw new RexException("Ruff! The description of a " + taskKind + " cannot be empty.");
+        }
+
+        String separator = Task.FIELD_SEPARATOR.trim();
+        if (description.contains(separator)) {
+            throw new RexException("Ruff! A description can't contain '" + separator
+                    + "' — I use it to keep your tasks apart in the save file.");
         }
         return description;
     }

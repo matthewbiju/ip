@@ -86,6 +86,27 @@ public class ParserTest {
     }
 
     @Test
+    void parseTodo_descriptionHoldingTheSeparator_exceptionThrown() {
+        // A task like this would save without complaint and then be skipped as
+        // unreadable on the next start, so it has to be refused up front.
+        RexException thrown = assertThrows(RexException.class, () -> Parser.parseTodo("buy milk | eggs"));
+
+        assertTrue(thrown.getMessage().contains("|"), thrown.getMessage());
+    }
+
+    @Test
+    void parseTodo_separatorWithoutSpaces_stillRefused() {
+        assertThrows(RexException.class, () -> Parser.parseTodo("either|or"));
+    }
+
+    @Test
+    void parseDeadline_descriptionHoldingTheSeparator_exceptionThrown() {
+        // The check is shared by every kind of task, so one dated kind is
+        // enough to show it is not only the todo that refuses.
+        assertThrows(RexException.class, () -> Parser.parseDeadline("pay | file taxes /by 2019-10-15"));
+    }
+
+    @Test
     void parseEvent_descriptionAndBothTimes_returnsEvent() throws RexException {
         Event event = Parser.parseEvent(
                 "project meeting /from 2019-10-15 1400 /to 2019-10-15 1600");

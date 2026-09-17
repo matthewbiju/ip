@@ -633,3 +633,52 @@ Woof! I don't understand the date "someday". Write it as yyyy-mm-dd, e.g. 2019-1
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
+
+### TC14: Descriptions holding the save file's separator
+
+**Aim:** Verify a description containing `|` is refused for every kind of task,
+with or without spaces around it, and that nothing is added; then that a
+normal task added afterwards still survives a restart.
+
+```session
+>>> (startup)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> todo buy milk | eggs
+Ruff! A description can't contain '|' — I use it to keep your tasks apart in the save file.
+>>> todo either|or
+Ruff! A description can't contain '|' — I use it to keep your tasks apart in the save file.
+>>> deadline pay | file taxes /by 2019-10-15
+Ruff! A description can't contain '|' — I use it to keep your tasks apart in the save file.
+>>> event a | b /from 2019-10-15 /to 2019-10-16
+Ruff! A description can't contain '|' — I use it to keep your tasks apart in the save file.
+>>> within a | b /from 2026-01-15 /to 2026-01-25
+Ruff! A description can't contain '|' — I use it to keep your tasks apart in the save file.
+>>> todo buy milk and eggs
+Got it! I've fetched this task for you:
+  [T][ ] buy milk and eggs
+You now have 1 tasks in your bowl!
+>>> list
+Here's what's in your bowl:
+1.[T][ ] buy milk and eggs
+>>> (restart)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> list
+Here's what's in your bowl:
+1.[T][ ] buy milk and eggs
+>>> bye
+Bye! *wags tail* Hope to fetch for you again soon!
+```
