@@ -96,6 +96,9 @@ Adds something that runs from one date to another. An event is happening
 
 Format: `event DESCRIPTION /from START /to END`
 
+`END` can't come before `START`. If only one of them has a time, just the days
+are compared, since a date with no time stands for the whole day.
+
 Example: `event project meeting /from 2019-10-15 1400 /to 2019-10-15 1600`
 
 ```
@@ -112,6 +115,8 @@ is going on the whole time, while a within-period task is one thing you can
 do on any of those days.
 
 Format: `within DESCRIPTION /from START /to END`
+
+As with an event, `END` can't come before `START`.
 
 Example: `within collect certificate /from 2026-01-15 /to 2026-01-25`
 
@@ -250,6 +255,7 @@ nothing you have already entered is lost. The most common ones:
 | `todo` | Ruff! The description of a todo cannot be empty. |
 | `deadline return book` | Ruff! A deadline needs a '/by' date, e.g. deadline return book /by 2019-10-15. |
 | `deadline return book /by Sunday` | Woof! I don't understand the date "Sunday". Write it as yyyy-mm-dd… |
+| `event retreat /from 2019-10-18 /to 2019-10-15` | Ruff! An event can't end before it starts. |
 | `mark 99` | Woof! There's no task numbered 99 in your bowl. |
 | `blah` | Woof? I don't know what that means :-( |
 

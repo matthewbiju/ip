@@ -144,7 +144,8 @@ public class Parser {
      * @param argument everything after the word "event".
      * @return the task it describes.
      * @throws RexException if the description, the /from time or the /to time
-     *     is missing, or either date cannot be read.
+     *     is missing, either date cannot be read, or the event ends before it
+     *     starts.
      */
     public static Event parseEvent(String argument) throws RexException {
         String[] fromParts = argument.split(" /from ", 2);
@@ -156,7 +157,11 @@ public class Parser {
         String to = requireFollowing(toParts,
                 "Ruff! An event needs a '/to' time, " + EVENT_EXAMPLE);
 
-        return new Event(description, parseDateTime(toParts[0]), parseDateTime(to));
+        TaskDateTime start = parseDateTime(toParts[0]);
+        TaskDateTime end = parseDateTime(to);
+        requireInOrder(start, end, "Ruff! An event can't end before it starts.");
+
+        return new Event(description, start, end);
     }
 
     /**
@@ -169,7 +174,8 @@ public class Parser {
      * @param argument everything after the word "within".
      * @return the task it describes.
      * @throws RexException if the description, the /from date or the /to date
-     *     is missing, or either date cannot be read.
+     *     is missing, either date cannot be read, or the period ends before it
+     *     starts.
      */
     public static WithinPeriod parseWithin(String argument) throws RexException {
         String[] fromParts = argument.split(" /from ", 2);
@@ -181,7 +187,11 @@ public class Parser {
         String to = requireFollowing(toParts,
                 "Ruff! A within task needs a '/to' date, " + WITHIN_EXAMPLE);
 
-        return new WithinPeriod(description, parseDateTime(toParts[0]), parseDateTime(to));
+        TaskDateTime start = parseDateTime(toParts[0]);
+        TaskDateTime end = parseDateTime(to);
+        requireInOrder(start, end, "Ruff! A within task's period can't end before it starts.");
+
+        return new WithinPeriod(description, start, end);
     }
 
     /**
@@ -283,6 +293,26 @@ public class Parser {
             throw new RexException(message);
         }
         return parts[1];
+    }
+
+    /**
+     * Refuses a pair of dates whose end comes before its start.
+     *
+     * A period like that describes no stretch of time at all, and one whose
+     * days are the wrong way round falls on no day, so the on command would
+     * never find it.
+     *
+     * @param start the date after /from.
+     * @param end the date after /to.
+     * @param message the complete sentence to show if the dates are the wrong
+     *     way round.
+     * @throws RexException if the end comes before the start.
+     */
+    private static void requireInOrder(TaskDateTime start, TaskDateTime end, String message)
+            throws RexException {
+        if (end.isBefore(start)) {
+            throw new RexException(message);
+        }
     }
 
     /** Returns the first space-separated word, e.g. "todo" from "todo borrow book". */

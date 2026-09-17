@@ -143,6 +143,46 @@ public class ParserTest {
     }
 
     @Test
+    void parseEvent_endsBeforeItStarts_exceptionThrown() {
+        RexException thrown = assertThrows(
+                RexException.class, () -> Parser.parseEvent("retreat /from 2019-10-18 /to 2019-10-15"));
+
+        assertTrue(thrown.getMessage().contains("end before it starts"), thrown.getMessage());
+    }
+
+    @Test
+    void parseEvent_endTimeBeforeStartTimeOnTheSameDay_exceptionThrown() {
+        String reversedTimes = "meeting /from 2019-10-15 1600 /to 2019-10-15 1400";
+
+        assertThrows(RexException.class, () -> Parser.parseEvent(reversedTimes));
+    }
+
+    @Test
+    void parseEvent_startsAndEndsAtTheSameMoment_accepted() throws RexException {
+        Event event = Parser.parseEvent("call /from 2019-10-15 1400 /to 2019-10-15 1400");
+
+        assertEquals("E | 0 | call | 2019-10-15 1400 | 2019-10-15 1400", event.toSaveFormat());
+    }
+
+    @Test
+    void parseEvent_timedStartEndingOnAPlainDateThatSameDay_accepted() throws RexException {
+        // "/to 2019-10-15" means the whole of that day, not its midnight, so an
+        // event starting at 2pm that day does not end before it starts.
+        Event event = Parser.parseEvent("workshop /from 2019-10-15 1400 /to 2019-10-15");
+
+        assertEquals("E | 0 | workshop | 2019-10-15 1400 | 2019-10-15", event.toSaveFormat());
+    }
+
+    @Test
+    void parseWithin_endsBeforeItStarts_exceptionThrown() {
+        String reversedDates = "collect certificate /from 2026-01-25 /to 2026-01-15";
+
+        RexException thrown = assertThrows(RexException.class, () -> Parser.parseWithin(reversedDates));
+
+        assertTrue(thrown.getMessage().contains("end before it starts"), thrown.getMessage());
+    }
+
+    @Test
     void parseWithin_descriptionAndBothDates_returnsWithinPeriod() throws RexException {
         WithinPeriod within = Parser.parseWithin("collect certificate /from 2026-01-15 /to 2026-01-25");
 

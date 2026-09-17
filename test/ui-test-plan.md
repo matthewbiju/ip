@@ -682,3 +682,37 @@ Here's what's in your bowl:
 >>> bye
 Bye! *wags tail* Hope to fetch for you again soon!
 ```
+
+### TC15: Periods that end before they start
+
+**Aim:** Verify an `event` or `within` whose end comes before its start is
+refused, whether the days or only the times are the wrong way round; and that a
+timed start ending on a plain date that same day is still accepted, since a
+plain date stands for the whole day.
+
+```session
+>>> (startup)
+ ____  _______  __
+|  _ \| ____\ \/ /
+| |_) |  _|  \  / 
+|  _ <| |___ /  \ 
+|_| \_\_____/_/\_\
+
+Woof woof! I'm Rex, your task-fetching sidekick!
+What can I fetch for you today?
+>>> event retreat /from 2019-10-18 /to 2019-10-15
+Ruff! An event can't end before it starts.
+>>> event meeting /from 2019-10-15 1600 /to 2019-10-15 1400
+Ruff! An event can't end before it starts.
+>>> within collect certificate /from 2026-01-25 /to 2026-01-15
+Ruff! A within task's period can't end before it starts.
+>>> event workshop /from 2019-10-15 1400 /to 2019-10-15
+Got it! I've fetched this task for you:
+  [E][ ] workshop (from: Oct 15 2019, 2:00PM to: Oct 15 2019)
+You now have 1 tasks in your bowl!
+>>> list
+Here's what's in your bowl:
+1.[E][ ] workshop (from: Oct 15 2019, 2:00PM to: Oct 15 2019)
+>>> bye
+Bye! *wags tail* Hope to fetch for you again soon!
+```
