@@ -1,11 +1,23 @@
 package rex;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import rex.command.AddCommand;
+import rex.command.Command;
+import rex.command.CommandType;
+import rex.command.DeleteCommand;
+import rex.command.ExitCommand;
+import rex.command.FindCommand;
+import rex.command.ListCommand;
+import rex.command.MarkCommand;
+import rex.command.OnCommand;
+import rex.command.UnknownCommand;
+import rex.command.UnmarkCommand;
 import rex.task.Deadline;
 import rex.task.Event;
 import rex.task.WithinPeriod;
@@ -199,6 +211,94 @@ public class ParserTest {
     @Test
     void parseKeyword_nothingGiven_exceptionThrown() {
         assertThrows(RexException.class, () -> Parser.parseKeyword("   "));
+    }
+
+    @Test
+    void parseCommandType_everyCommandWord_ownType() {
+        assertEquals(CommandType.LIST, Parser.parseCommandType("list"));
+        assertEquals(CommandType.MARK, Parser.parseCommandType("mark 1"));
+        assertEquals(CommandType.UNMARK, Parser.parseCommandType("unmark 1"));
+        assertEquals(CommandType.DELETE, Parser.parseCommandType("delete 1"));
+        assertEquals(CommandType.TODO, Parser.parseCommandType("todo read book"));
+        assertEquals(CommandType.DEADLINE, Parser.parseCommandType("deadline x /by 2019-10-15"));
+        assertEquals(CommandType.EVENT, Parser.parseCommandType("event x /from a /to b"));
+        assertEquals(CommandType.WITHIN, Parser.parseCommandType("within x /from a /to b"));
+        assertEquals(CommandType.ON, Parser.parseCommandType("on 2019-10-15"));
+        assertEquals(CommandType.FIND, Parser.parseCommandType("find book"));
+        assertEquals(CommandType.BYE, Parser.parseCommandType("bye"));
+    }
+
+    @Test
+    void parseCommandType_differentCase_stillRecognized() {
+        assertEquals(CommandType.LIST, Parser.parseCommandType("LIST"));
+        assertEquals(CommandType.TODO, Parser.parseCommandType("ToDo read book"));
+    }
+
+    @Test
+    void parseCommandType_wordNamingNoCommand_unknown() {
+        assertEquals(CommandType.UNKNOWN, Parser.parseCommandType("blah"));
+        assertEquals(CommandType.UNKNOWN, Parser.parseCommandType(""));
+    }
+
+    @Test
+    void parseCommandType_commandWordAsPartOfAnother_unknown() {
+        // Only the whole first word names a command, so a longer word starting
+        // with one is not that command.
+        assertEquals(CommandType.UNKNOWN, Parser.parseCommandType("listen to music"));
+    }
+
+    @Test
+    void parseArgument_wordsAfterTheCommand_returnedWhole() {
+        assertEquals("read book", Parser.parseArgument("todo read book"));
+        assertEquals("x /by 2019-10-15", Parser.parseArgument("deadline x /by 2019-10-15"));
+    }
+
+    @Test
+    void parseArgument_commandWordAlone_empty() {
+        assertEquals("", Parser.parseArgument("list"));
+    }
+
+    @Test
+    void parse_eachCommandWord_buildsThatCommand() throws RexException {
+        // The parser's job here is to choose a command, so each is checked by
+        // the kind of object it hands back rather than by what it later does.
+        assertInstanceOf(ListCommand.class, Parser.parse("list"));
+        assertInstanceOf(MarkCommand.class, Parser.parse("mark 1"));
+        assertInstanceOf(UnmarkCommand.class, Parser.parse("unmark 1"));
+        assertInstanceOf(DeleteCommand.class, Parser.parse("delete 1"));
+        assertInstanceOf(OnCommand.class, Parser.parse("on 2019-10-15"));
+        assertInstanceOf(FindCommand.class, Parser.parse("find book"));
+        assertInstanceOf(ExitCommand.class, Parser.parse("bye"));
+        assertInstanceOf(UnknownCommand.class, Parser.parse("blah"));
+    }
+
+    @Test
+    void parse_everyKindOfTask_buildsAnAddCommand() throws RexException {
+        // All four kinds are added by the same command, so what tells them
+        // apart is the task inside it, not the command around it.
+        assertInstanceOf(AddCommand.class, Parser.parse("todo read book"));
+        assertInstanceOf(AddCommand.class, Parser.parse("deadline return book /by 2019-10-15"));
+        assertInstanceOf(AddCommand.class,
+                Parser.parse("event meeting /from 2019-10-15 /to 2019-10-16"));
+        assertInstanceOf(AddCommand.class,
+                Parser.parse("within collect /from 2026-01-15 /to 2026-01-25"));
+    }
+
+    @Test
+    void parse_unknownWord_refusedWhenRunRatherThanWhenParsed() throws RexException {
+        // Refusing is itself a command, so parsing an unrecognized word
+        // succeeds and the complaint comes only once it is carried out.
+        Command command = Parser.parse("blah");
+
+        assertInstanceOf(UnknownCommand.class, command);
+    }
+
+    @Test
+    void parse_commandNamedButDescribedWrongly_exceptionThrown() {
+        assertThrows(RexException.class, () -> Parser.parse("todo"));
+        assertThrows(RexException.class, () -> Parser.parse("deadline return book"));
+        assertThrows(RexException.class, () -> Parser.parse("mark abc"));
+        assertThrows(RexException.class, () -> Parser.parse("on someday"));
     }
 
     /** Reads a task number, turning a refusal into a test failure. */
