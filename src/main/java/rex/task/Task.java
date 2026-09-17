@@ -105,8 +105,8 @@ public class Task {
      * and 0 if it is not. Subclasses append their own extra fields to this.
      *
      * Note that a description containing the field separator would produce
-     * a line that cannot be read back correctly. Descriptions like that are
-     * rare enough that this is left unhandled rather than escaped.
+     * a line that cannot be read back correctly. The parser refuses such a
+     * description before a task is built, so none reaches this method.
      */
     public String toSaveFormat() {
         return getTypeIcon() + FIELD_SEPARATOR + (isDone ? "1" : "0") + FIELD_SEPARATOR + description;

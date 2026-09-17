@@ -108,6 +108,24 @@ public class TaskDateTime {
     }
 
     /**
+     * Returns true if this comes before the other date.
+     *
+     * The times of day are compared only when both dates carry one. A date
+     * written without a time stands for the whole day rather than for its
+     * midnight, so "2019-10-15 1400" does not come after a plain "2019-10-15":
+     * they are the same day, and an event running from the one to the other
+     * is a reasonable thing to write.
+     *
+     * @param other the date to compare against.
+     */
+    public boolean isBefore(TaskDateTime other) {
+        if (hasTime && other.hasTime) {
+            return dateTime.isBefore(other.dateTime);
+        }
+        return getDate().isBefore(other.getDate());
+    }
+
+    /**
      * Returns this date as it should be written to the save file, in the same
      * format parse() reads, so that saving and loading leave it unchanged.
      */

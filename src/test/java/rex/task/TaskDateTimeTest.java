@@ -122,6 +122,45 @@ public class TaskDateTimeTest {
     }
 
     @Test
+    void isBefore_bothCarryingTimes_timesCompared() {
+        TaskDateTime twoPm = TaskDateTime.parse("2019-10-15 1400");
+        TaskDateTime fourPm = TaskDateTime.parse("2019-10-15 1600");
+
+        assertTrue(twoPm.isBefore(fourPm));
+        assertFalse(fourPm.isBefore(twoPm));
+    }
+
+    @Test
+    void isBefore_sameMoment_returnsFalse() {
+        TaskDateTime twoPm = TaskDateTime.parse("2019-10-15 1400");
+
+        assertFalse(twoPm.isBefore(TaskDateTime.parse("2019-10-15 1400")));
+    }
+
+    @Test
+    void isBefore_datesWithoutTimes_daysCompared() {
+        assertTrue(TaskDateTime.parse("2019-10-15").isBefore(TaskDateTime.parse("2019-10-16")));
+        assertFalse(TaskDateTime.parse("2019-10-16").isBefore(TaskDateTime.parse("2019-10-15")));
+    }
+
+    @Test
+    void isBefore_onlyOneCarryingATimeOnTheSameDay_neitherBeforeTheOther() {
+        // A plain date is the whole day, not its midnight, so a time on that
+        // same day comes neither before nor after it.
+        TaskDateTime twoPm = TaskDateTime.parse("2019-10-15 1400");
+        TaskDateTime wholeDay = TaskDateTime.parse("2019-10-15");
+
+        assertFalse(twoPm.isBefore(wholeDay));
+        assertFalse(wholeDay.isBefore(twoPm));
+    }
+
+    @Test
+    void isBefore_onlyOneCarryingATimeOnDifferentDays_daysCompared() {
+        assertTrue(TaskDateTime.parse("2019-10-14").isBefore(TaskDateTime.parse("2019-10-15 0900")));
+        assertFalse(TaskDateTime.parse("2019-10-15 0900").isBefore(TaskDateTime.parse("2019-10-14")));
+    }
+
+    @Test
     void formatDate_plainDay_usesDisplayFormat() {
         assertEquals("Oct 15 2019", TaskDateTime.formatDate(LocalDate.of(2019, 10, 15)));
     }
